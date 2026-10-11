@@ -1,0 +1,11 @@
+.sticky-side { position: sticky; top: 5.5rem; }
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(2.5rem, 1fr)); gap: 0.35rem; }
+.icon-choice {
+  aspect-ratio: 1; border: 1px solid #e1e8f5; background: #fff; border-radius: 0.5rem; font-size: 1.1rem; color: #3d4863;
+  &:hover { border-color: #0b1530; color: #0b1530; }
+  &.active { background: #0b1530; color: #fff; border-color: #0b1530; }
+}
+.swatch {
+  width: 2rem; height: 2rem; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #e1e8f5;
+  &.active { box-shadow: 0 0 0 2px #0b1530; }
+}

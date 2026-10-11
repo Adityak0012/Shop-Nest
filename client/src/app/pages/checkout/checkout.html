@@ -1,0 +1,128 @@
+<div class="container py-4">
+  <nav aria-label="Breadcrumb" class="small mb-2">
+    <a routerLink="/cart" class="text-muted"><i class="bi bi-arrow-left me-1"></i>Back to cart</a>
+  </nav>
+  <h1 class="h2 mb-4">Checkout</h1>
+
+  @if (cart.items().length === 0 && !placing()) {
+    <div class="surface empty-state">
+      <div class="empty-icon"><i class="bi bi-bag"></i></div>
+      <h2 class="h5">Nothing to check out</h2>
+      <p class="text-muted">Your cart is empty.</p>
+      <a routerLink="/shop" class="btn btn-primary">Start shopping</a>
+    </div>
+  } @else {
+    @if (error()) {
+      <div class="alert alert-danger d-flex gap-2 align-items-start" role="alert">
+        <i class="bi bi-exclamation-circle-fill mt-1"></i>
+        <div>{{ error() }} @if (error().includes('left of')) { <a routerLink="/cart" class="alert-link">Update cart</a> }</div>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="placeOrder()" novalidate class="row g-4">
+      <div class="col-lg-8 d-grid gap-4 align-content-start">
+        <!-- Address -->
+        <section class="surface p-3 p-md-4" aria-labelledby="addr-title">
+          <h2 id="addr-title" class="h5 mb-3"><span class="step">1</span>Delivery address</h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="fullName" class="form-label">Full name</label>
+              <input id="fullName" class="form-control" formControlName="fullName" autocomplete="name" [class.is-invalid]="invalid('fullName')">
+              <div class="invalid-feedback">Enter the name of the person receiving the order.</div>
+            </div>
+            <div class="col-md-6">
+              <label for="phone" class="form-label">Mobile number</label>
+              <div class="input-group has-validation">
+                <span class="input-group-text">+91</span>
+                <input id="phone" type="tel" inputmode="numeric" maxlength="10" class="form-control" formControlName="phone" autocomplete="tel-national" [class.is-invalid]="invalid('phone')">
+                <div class="invalid-feedback">Enter a valid 10-digit mobile number.</div>
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="line1" class="form-label">House no., building, street</label>
+              <input id="line1" class="form-control" formControlName="line1" autocomplete="address-line1" [class.is-invalid]="invalid('line1')">
+              <div class="invalid-feedback">Enter your address.</div>
+            </div>
+            <div class="col-12">
+              <label for="line2" class="form-label">Area, landmark <span class="text-muted fw-normal">(optional)</span></label>
+              <input id="line2" class="form-control" formControlName="line2" autocomplete="address-line2">
+            </div>
+            <div class="col-md-4">
+              <label for="city" class="form-label">City</label>
+              <input id="city" class="form-control" formControlName="city" autocomplete="address-level2" [class.is-invalid]="invalid('city')">
+              <div class="invalid-feedback">Enter your city.</div>
+            </div>
+            <div class="col-md-4">
+              <label for="state" class="form-label">State</label>
+              <select id="state" class="form-select" formControlName="state" autocomplete="address-level1" [class.is-invalid]="invalid('state')">
+                <option value="" disabled>Select state</option>
+                @for (s of states; track s) { <option [value]="s">{{ s }}</option> }
+              </select>
+              <div class="invalid-feedback">Select your state.</div>
+            </div>
+            <div class="col-md-4">
+              <label for="pincode" class="form-label">PIN code</label>
+              <input id="pincode" inputmode="numeric" maxlength="6" class="form-control" formControlName="pincode" autocomplete="postal-code" [class.is-invalid]="invalid('pincode')">
+              <div class="invalid-feedback">Enter a 6-digit PIN code.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Payment -->
+        <section class="surface p-3 p-md-4" aria-labelledby="pay-title">
+          <h2 id="pay-title" class="h5 mb-3"><span class="step">2</span>Payment method</h2>
+          <div class="d-grid gap-2" role="radiogroup">
+            <label class="pay-option" [class.disabled]="!payment().razorpay" [class.selected]="form.value.paymentMethod === 'razorpay'">
+              <input type="radio" class="form-check-input mt-0" formControlName="paymentMethod" value="razorpay" [attr.disabled]="payment().razorpay ? null : true">
+              <i class="bi bi-credit-card-2-front fs-4 text-primary"></i>
+              <span class="flex-grow-1">
+                <strong class="d-block">Pay online</strong>
+                <span class="small text-muted">UPI, cards and net banking via Razorpay (test mode)</span>
+                @if (!payment().razorpay) { <span class="small d-block text-muted fst-italic">Not configured on this server</span> }
+              </span>
+            </label>
+            <label class="pay-option" [class.selected]="form.value.paymentMethod === 'cod'">
+              <input type="radio" class="form-check-input mt-0" formControlName="paymentMethod" value="cod">
+              <i class="bi bi-cash-coin fs-4 text-primary"></i>
+              <span class="flex-grow-1">
+                <strong class="d-block">Cash on Delivery</strong>
+                <span class="small text-muted">Pay in cash or UPI when your order arrives</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Items -->
+        <section class="surface p-3 p-md-4" aria-labelledby="items-title">
+          <h2 id="items-title" class="h5 mb-3"><span class="step">3</span>Review items</h2>
+          <ul class="list-unstyled d-grid gap-3 mb-0">
+            @for (i of cart.items(); track i.productId) {
+              <li class="d-flex align-items-center gap-3">
+                <div class="icon-tile tile-sm" [style.--tile]="i.color"><i class="bi" [class]="i.icon"></i>@if (i.image) { <img [src]="i.image" alt="" loading="lazy" (error)="$any($event.target).remove()"> }</div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold">{{ i.name }}</div>
+                  <div class="small text-muted">Qty {{ i.qty }} × {{ i.price | inr }}</div>
+                </div>
+                <div class="fw-bold">{{ i.price * i.qty | inr }}</div>
+              </li>
+            }
+          </ul>
+        </section>
+      </div>
+
+      <aside class="col-lg-4 d-grid gap-3 align-content-start">
+        <app-coupon-box />
+        <app-order-summary>
+          <button type="submit" class="btn btn-primary btn-lg w-100 mt-3" [disabled]="placing()">
+            @if (placing()) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Placing order…
+            } @else {
+              {{ form.value.paymentMethod === 'razorpay' ? 'Pay ' : 'Place order · ' }}{{ cart.total() | inr }}
+            }
+          </button>
+          <p class="small text-muted text-center mt-2 mb-0">By placing the order you agree this is a demo store.</p>
+        </app-order-summary>
+      </aside>
+    </form>
+  }
+</div>

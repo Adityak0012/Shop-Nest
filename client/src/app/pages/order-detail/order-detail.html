@@ -1,0 +1,124 @@
+<div class="container py-4" style="max-width: 64rem">
+  <a routerLink="/orders" class="small text-muted d-inline-block mb-2"><i class="bi bi-arrow-left me-1"></i>All orders</a>
+
+  @if (loading()) {
+    <div class="skeleton mb-3" style="height: 9rem"></div>
+    <div class="skeleton" style="height: 16rem"></div>
+  } @else if (error()) {
+    <div class="surface empty-state">
+      <div class="empty-icon"><i class="bi bi-receipt"></i></div>
+      <h1 class="h5">Couldn't open this order</h1>
+      <p class="text-muted">{{ error() }}</p>
+      <a routerLink="/orders" class="btn btn-primary">Go to my orders</a>
+    </div>
+  } @else if (order(); as o) {
+    @if (justPlaced && o.status !== 'cancelled') {
+      <div class="placed-banner fade-in mb-4">
+        <span class="placed-icon"><i class="bi bi-check-lg"></i></span>
+        <div>
+          <h1 class="h4 mb-1">
+            @if (o.status === 'pending_payment') { Order saved, payment pending } @else { Thank you! Your order is placed. }
+          </h1>
+          <p class="mb-0 text-muted">Order #{{ o._id.slice(-6).toUpperCase() }} · We'll deliver to {{ o.shippingAddress.city }}.</p>
+        </div>
+      </div>
+    }
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+      <div>
+        <h2 class="h3 mb-1">Order #{{ o._id.slice(-6).toUpperCase() }}</h2>
+        <p class="text-muted mb-0 small">Placed on {{ o.createdAt | date: 'd MMMM y, h:mm a' }}</p>
+      </div>
+      <span class="status fs-6" [class]="'status-' + o.status"><i class="bi" [class]="statusIcon[o.status]"></i>{{ statusLabel[o.status] }}</span>
+    </div>
+
+    <!-- Progress -->
+    @if (o.status !== 'cancelled' && o.status !== 'pending_payment') {
+      <ol class="tracker surface p-3 p-md-4 mb-4" aria-label="Delivery progress">
+        @for (s of steps; track s; let i = $index) {
+          <li [class.done]="i <= stepIndex()" [class.current]="i === stepIndex()" [attr.aria-current]="i === stepIndex() ? 'step' : null">
+            <span class="dot"><i class="bi" [class]="i <= stepIndex() ? 'bi-check-lg' : statusIcon[s]"></i></span>
+            <span class="label">{{ statusLabel[s] }}</span>
+          </li>
+        }
+      </ol>
+    }
+
+    @if (o.status === 'pending_payment') {
+      <div class="alert d-flex flex-wrap align-items-center gap-3 mb-4" style="background:#fffbeb;color:#92400e">
+        <i class="bi bi-hourglass-split fs-4"></i>
+        <div class="flex-grow-1">
+          <strong>Waiting for payment.</strong> Your items are reserved. Pay now to confirm the order, or cancel it.
+        </div>
+        @if (canPayOnline() && o.payment.razorpayOrderId) {
+          <button type="button" class="btn btn-primary" (click)="payNow()" [disabled]="busy()"><i class="bi bi-credit-card me-1"></i>Pay {{ o.total | inr }}</button>
+        }
+      </div>
+    }
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <section class="surface p-3 p-md-4">
+          <h3 class="h6 mb-3">Items</h3>
+          <ul class="list-unstyled d-grid gap-3 mb-0">
+            @for (i of o.items; track i.product) {
+              <li class="d-flex align-items-center gap-3">
+                <div class="icon-tile tile-sm" [style.--tile]="i.color"><i class="bi" [class]="i.icon"></i>@if (i.image) { <img [src]="i.image" alt="" loading="lazy" (error)="$any($event.target).remove()"> }</div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold">{{ i.name }}</div>
+                  <div class="small text-muted">Qty {{ i.qty }} × {{ i.price | inr }}</div>
+                </div>
+                <div class="fw-bold">{{ i.price * i.qty | inr }}</div>
+              </li>
+            }
+          </ul>
+        </section>
+      </div>
+
+      <div class="col-lg-5 d-grid gap-4 align-content-start">
+        <section class="surface p-3 p-md-4">
+          <h3 class="h6 mb-3">Payment</h3>
+          <div class="d-flex justify-content-between mb-2"><span class="text-muted">Items</span><span>{{ o.itemsTotal | inr }}</span></div>
+          @if (o.discount) {
+            <div class="d-flex justify-content-between mb-2 text-success"><span>Coupon {{ o.coupon?.code }}</span><span>− {{ o.discount | inr }}</span></div>
+          }
+          <div class="d-flex justify-content-between mb-2"><span class="text-muted">Delivery</span><span>{{ o.shipping === 0 ? 'Free' : (o.shipping | inr) }}</span></div>
+          <hr>
+          <div class="d-flex justify-content-between fw-800 fs-5 mb-3"><span>Total</span><span>{{ o.total | inr }}</span></div>
+          <div class="small d-flex align-items-center gap-2">
+            <i class="bi" [class]="o.paymentMethod === 'cod' ? 'bi-cash-coin' : 'bi-credit-card'"></i>
+            {{ o.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online payment (Razorpay)' }} ·
+            <span class="fw-semibold text-capitalize" [class.text-success]="o.payment.status === 'paid'">{{ o.payment.status }}</span>
+          </div>
+        </section>
+
+        <section class="surface p-3 p-md-4">
+          <h3 class="h6 mb-2">Delivery address</h3>
+          <address class="mb-0 small">
+            <strong>{{ o.shippingAddress.fullName }}</strong><br>
+            {{ o.shippingAddress.line1 }}@if (o.shippingAddress.line2) {, {{ o.shippingAddress.line2 }}}<br>
+            {{ o.shippingAddress.city }}, {{ o.shippingAddress.state }} {{ o.shippingAddress.pincode }}<br>
+            <i class="bi bi-telephone me-1"></i>+91 {{ o.shippingAddress.phone }}
+          </address>
+        </section>
+
+        @if (canCancel()) {
+          <section class="surface p-3 p-md-4">
+            @if (!confirmCancel()) {
+              <button type="button" class="btn btn-outline-danger w-100" (click)="confirmCancel.set(true)"><i class="bi bi-x-circle me-1"></i>Cancel order</button>
+            } @else {
+              <p class="fw-semibold mb-2">Cancel this order?</p>
+              <p class="small text-muted">The items go back in stock. @if (o.payment.status === 'paid') { Your payment will be marked for refund. }</p>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-danger flex-grow-1" (click)="cancel()" [disabled]="busy()">
+                  @if (busy()) { <span class="spinner-border spinner-border-sm me-1"></span> } Yes, cancel
+                </button>
+                <button type="button" class="btn btn-outline-secondary flex-grow-1" (click)="confirmCancel.set(false)">Keep order</button>
+              </div>
+            }
+          </section>
+        }
+      </div>
+    </div>
+  }
+</div>

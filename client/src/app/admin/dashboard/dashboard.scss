@@ -1,0 +1,22 @@
+.kpi {
+  padding: 1.1rem 1.25rem; position: relative; height: 100%;
+  p { margin: 0; }
+}
+.kpi-icon {
+  position: absolute; right: 1rem; top: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 0.7rem; display: grid; place-items: center;
+  background: rgba(11, 21, 48, 0.06); color: #0b1530; font-size: 1.15rem;
+}
+.kpi-label { font-size: 0.8rem; font-weight: 600; color: #5b6783; }
+.kpi-value { font-size: clamp(1.35rem, 3vw, 1.75rem); font-weight: 800; letter-spacing: -0.02em; margin: 0.25rem 0 !important; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 0.8rem; color: #5b6783; }
+
+.bar {
+  height: 0.5rem; border-radius: 999px; background: #f1f5fd; overflow: hidden;
+  span { display: block; height: 100%; border-radius: 999px; background: #9aa6c0; transition: width 0.4s ease-out; }
+  &.bar-primary span { background: #0b1530; }
+}
+.cat-dot {
+  width: 2.25rem; height: 2.25rem; border-radius: 0.6rem; display: grid; place-items: center; flex-shrink: 0;
+  background: rgba(11, 21, 48, 0.06); color: #0b1530;
+}
+td, th { white-space: nowrap; }

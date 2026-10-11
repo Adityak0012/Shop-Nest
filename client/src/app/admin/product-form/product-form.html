@@ -1,0 +1,143 @@
+<a routerLink="/admin/products" class="small text-muted d-inline-block mb-2"><i class="bi bi-arrow-left me-1"></i>All products</a>
+<h1 class="h2 mb-4">{{ isEdit ? 'Edit product' : 'Add a product' }}</h1>
+
+@if (error()) { <div class="alert alert-danger" role="alert"><i class="bi bi-exclamation-circle me-1"></i>{{ error() }}</div> }
+
+@if (loading()) {
+  <div class="skeleton" style="height: 30rem"></div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate class="row g-4">
+    <div class="col-xl-8 d-grid gap-4 align-content-start">
+      <section class="surface p-3 p-md-4">
+        <h2 class="h6 mb-3">Details</h2>
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="name" class="form-label">Product name</label>
+            <input id="name" class="form-control" formControlName="name" [class.is-invalid]="invalid('name')">
+            <div class="invalid-feedback">Name must be 2–120 characters.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="brand" class="form-label">Brand</label>
+            <input id="brand" class="form-control" formControlName="brand" [class.is-invalid]="invalid('brand')">
+            <div class="invalid-feedback">Brand is required.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="category" class="form-label">Category</label>
+            <select id="category" class="form-select" formControlName="category" [class.is-invalid]="invalid('category')">
+              <option value="" disabled>Select a category</option>
+              @for (c of categories; track c) { <option [value]="c">{{ c }}</option> }
+            </select>
+            <div class="invalid-feedback">Pick a category.</div>
+          </div>
+          <div class="col-12">
+            <label for="description" class="form-label">Description</label>
+            <textarea id="description" rows="4" class="form-control" formControlName="description" [class.is-invalid]="invalid('description')"></textarea>
+            <div class="invalid-feedback">Write at least 10 characters.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="surface p-3 p-md-4">
+        <h2 class="h6 mb-3">Price and stock</h2>
+        <div class="row g-3">
+          <div class="col-sm-4">
+            <label for="price" class="form-label">Selling price (₹)</label>
+            <input id="price" type="number" min="1" class="form-control" formControlName="price" [class.is-invalid]="invalid('price')">
+            <div class="invalid-feedback">Enter a price above 0.</div>
+          </div>
+          <div class="col-sm-4">
+            <label for="mrp" class="form-label">MRP (₹)</label>
+            <input id="mrp" type="number" min="1" class="form-control" formControlName="mrp"
+                   [class.is-invalid]="invalid('mrp') || (form.hasError('mrpLow') && (form.controls.mrp.touched || submitted()))">
+            <div class="invalid-feedback">{{ form.hasError('mrpLow') ? 'MRP cannot be lower than the selling price.' : 'Enter the MRP.' }}</div>
+            @if (discount() > 0) { <div class="form-text text-deal fw-semibold">{{ discount() }}% off shown to customers</div> }
+          </div>
+          <div class="col-sm-4">
+            <label for="stock" class="form-label">Units in stock</label>
+            <input id="stock" type="number" min="0" step="1" class="form-control" formControlName="stock" [class.is-invalid]="invalid('stock')">
+            <div class="invalid-feedback">Enter a whole number, 0 or more.</div>
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="featured" formControlName="featured">
+              <label class="form-check-label" for="featured">Feature on the home page</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="surface p-3 p-md-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h6 mb-0">Highlights <span class="text-muted fw-normal">(up to 6)</span></h2>
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="addHighlight()" [disabled]="highlights.length >= 6"><i class="bi bi-plus-lg me-1"></i>Add</button>
+        </div>
+        <div formArrayName="highlights" class="d-grid gap-2">
+          @for (h of highlights.controls; track h; let i = $index) {
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-check2-circle text-primary"></i></span>
+              <label class="visually-hidden" [for]="'hl-' + i">Highlight {{ i + 1 }}</label>
+              <input [id]="'hl-' + i" class="form-control" [formControlName]="i" placeholder="e.g. 5000mAh battery">
+              <button type="button" class="btn btn-outline-secondary" (click)="removeHighlight(i)" [attr.aria-label]="'Remove highlight ' + (i + 1)"><i class="bi bi-x-lg"></i></button>
+            </div>
+          } @empty {
+            <p class="small text-muted mb-0">No highlights yet.</p>
+          }
+        </div>
+      </section>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="d-grid gap-4 sticky-side">
+        <section class="surface p-3 p-md-4">
+          <h2 class="h6 mb-3">Look <span class="text-muted fw-normal">(icon instead of a photo)</span></h2>
+          <div class="icon-tile mb-3 mx-auto" style="max-width: 11rem" [style.--tile]="form.value.color">
+            <i class="bi" [class]="form.value.icon"></i>
+            @if (form.value.image) { <img [src]="form.value.image" alt="Product photo preview" (error)="imageBroken.set(true)" (load)="imageBroken.set(false)"> }
+          </div>
+
+          <label for="image" class="form-label">Photo path or URL <span class="text-muted fw-normal">(optional)</span></label>
+          <input id="image" class="form-control form-control-sm" formControlName="image" placeholder="/images/products/my-product.jpg">
+          <div class="form-text mb-3">
+            @if (form.value.image && imageBroken()) { <span class="text-danger">Image not found, the icon will be shown instead.</span> }
+            @else { Put photos in <code>client/public/images/products/</code>. Leave empty to use the icon. }
+          </div>
+          <label for="gallery" class="form-label">More photos <span class="text-muted fw-normal">(optional, one per line, up to 6)</span></label>
+          <textarea id="gallery" rows="3" class="form-control form-control-sm mb-1" formControlName="gallery" placeholder="/images/products/my-product-2.jpg"></textarea>
+          <div class="form-text mb-3">Shown as thumbnails on the product page. Files named <code>slug-2.jpg</code>, <code>slug-3.jpg</code> are picked up automatically.</div>
+
+          <p class="form-label mb-2">Icon</p>
+          <div class="icon-grid mb-2" role="radiogroup" aria-label="Icon">
+            @for (ic of iconChoices; track ic) {
+              <button type="button" class="icon-choice" [class.active]="form.value.icon === ic" (click)="form.controls.icon.setValue(ic)"
+                      [attr.aria-label]="ic" [attr.aria-pressed]="form.value.icon === ic"><i class="bi" [class]="ic"></i></button>
+            }
+          </div>
+          <label for="icon" class="form-label small text-muted fw-normal">Or type any <a href="https://icons.getbootstrap.com" target="_blank" rel="noopener">Bootstrap Icon</a> class</label>
+          <input id="icon" class="form-control form-control-sm mb-3" formControlName="icon" [class.is-invalid]="invalid('icon')">
+          <div class="invalid-feedback mb-2">Use a class like bi-laptop.</div>
+
+          <p class="form-label mb-2">Tile colour</p>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            @for (c of colorChoices; track c) {
+              <button type="button" class="swatch" [style.background]="c" [class.active]="form.value.color?.toLowerCase() === c.toLowerCase()"
+                      (click)="form.controls.color.setValue(c)" [attr.aria-label]="'Colour ' + c"></button>
+            }
+            <label for="color" class="visually-hidden">Custom colour</label>
+            <input id="color" type="color" class="form-control form-control-color" formControlName="color" title="Custom colour">
+          </div>
+        </section>
+
+        <section class="surface p-3 p-md-4">
+          <div class="d-flex justify-content-between mb-3">
+            <span class="text-muted">Customer sees</span>
+            <span><strong>{{ form.value.price || 0 | inr }}</strong> @if (discount() > 0) { <span class="mrp ms-1">{{ form.value.mrp | inr }}</span> }</span>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="saving()">
+            @if (saving()) { <span class="spinner-border spinner-border-sm me-2"></span>Saving… } @else { {{ isEdit ? 'Save changes' : 'Add product' }} }
+          </button>
+          <a routerLink="/admin/products" class="btn btn-link w-100 mt-1 text-muted">Cancel</a>
+        </section>
+      </div>
+    </div>
+  </form>
+}

@@ -1,0 +1,24 @@
+.crumbs {
+  display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #5b6783; min-width: 0;
+  a { color: #5b6783; } span:not(:last-child) { opacity: 0.5; }
+}
+.buy-box { max-width: 30rem; }
+.pd-title { font-size: clamp(2rem, 3.4vw, 2.75rem); line-height: 1.08; font-weight: 800; letter-spacing: -0.04em; }
+.pd-price { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stars { color: #f5a524; letter-spacing: 0.05em; }
+.stock-line { font-weight: 600; font-size: 0.92rem; display: flex; align-items: center; gap: 0.5rem; .bi { font-size: 0.5rem; } }
+.assure {
+  display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #e1e8f5; border-radius: 0.75rem; background: #fff;
+  > div { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.35rem; padding: 0.9rem 0.5rem; font-size: 0.78rem; color: #3d4863; }
+  > div + div { border-left: 1px solid #e1e8f5; }
+  .bi { font-size: 1.2rem; color: #0b1530; }
+}
+.details {
+  details { border-top: 1px solid #e1e8f5; padding: 1rem 0; }
+  details:last-child { border-bottom: 1px solid #e1e8f5; }
+  summary { list-style: none; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; font-size: 1.3rem; font-weight: 300; line-height: 1; }
+  details[open] summary { margin-bottom: 0.75rem; }
+  details[open] summary::after { content: '−'; }
+}

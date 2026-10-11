@@ -1,0 +1,145 @@
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+  <div>
+    <h1 class="h2 mb-1">Dashboard</h1>
+    <p class="text-muted mb-0 small">Store overview. Revenue counts placed, shipped and delivered orders.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button type="button" class="btn btn-outline-secondary" (click)="load()" [disabled]="loading()" aria-label="Refresh"><i class="bi bi-arrow-clockwise"></i></button>
+    <a routerLink="/admin/products/new" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add product</a>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="surface empty-state">
+    <div class="empty-icon" style="background:#fef2f2;color:#b91c1c"><i class="bi bi-exclamation-triangle"></i></div>
+    <p class="text-muted">{{ error() }}</p>
+    <button class="btn btn-primary" type="button" (click)="load()">Try again</button>
+  </div>
+} @else if (loading() && !stats()) {
+  <div class="row g-3 mb-4">@for (i of [1,2,3,4]; track i) { <div class="col-6 col-xl-3"><div class="skeleton" style="height:7.5rem"></div></div> }</div>
+  <div class="skeleton" style="height:18rem"></div>
+} @else if (stats(); as s) {
+  <!-- KPIs -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+      <div class="kpi surface"><span class="kpi-icon"><i class="bi bi-currency-rupee"></i></span>
+        <p class="kpi-label">Revenue</p><p class="kpi-value">{{ s.revenue | inr }}</p>
+        <p class="kpi-sub">Avg order {{ avgOrderValue() | inr }}</p></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="kpi surface"><span class="kpi-icon"><i class="bi bi-receipt"></i></span>
+        <p class="kpi-label">Orders</p><p class="kpi-value">{{ s.orders }}</p>
+        <p class="kpi-sub">{{ s.ordersByStatus.placed }} waiting to ship</p></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="kpi surface"><span class="kpi-icon"><i class="bi bi-people"></i></span>
+        <p class="kpi-label">Customers</p><p class="kpi-value">{{ s.customers }}</p>
+        <p class="kpi-sub">Registered accounts</p></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="kpi surface"><span class="kpi-icon"><i class="bi bi-box-seam"></i></span>
+        <p class="kpi-label">Products</p><p class="kpi-value">{{ s.products }}</p>
+        <p class="kpi-sub" [class.text-danger]="s.outOfStock > 0">{{ s.outOfStock }} out of stock</p></div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- Orders by status -->
+    <div class="col-lg-5">
+      <section class="surface p-3 p-md-4 h-100">
+        <h2 class="h6 mb-3">Orders by status <span class="text-muted fw-normal">· all time</span></h2>
+        <ul class="list-unstyled d-grid gap-3 mb-0">
+          @for (st of statusList; track st) {
+            <li>
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="status" [class]="'status-' + st">{{ statusLabel[st] }}</span>
+                <span class="fw-semibold">{{ s.ordersByStatus[st] }}</span>
+              </div>
+              <div class="bar"><span [style.width.%]="statusShare(s.ordersByStatus[st])"></span></div>
+            </li>
+          }
+        </ul>
+      </section>
+    </div>
+
+    <!-- Revenue by category -->
+    <div class="col-lg-7">
+      <section class="surface p-3 p-md-4 h-100">
+        <h2 class="h6 mb-3">Revenue by category <span class="text-muted fw-normal">· ₹</span></h2>
+        @if (s.revenueByCategory.length === 0) {
+          <p class="text-muted small mb-0">No sales yet. Revenue appears here once orders are placed.</p>
+        } @else {
+          <ul class="list-unstyled d-grid gap-3 mb-0">
+            @for (c of s.revenueByCategory; track c.category) {
+              <li class="d-flex align-items-center gap-3">
+                <span class="cat-dot"><i class="bi" [class]="categoryIcon[c.category] || 'bi-box-seam'"></i></span>
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between small mb-1"><span class="fw-semibold">{{ c.category }}</span><span>{{ c.revenue | inr }}</span></div>
+                  <div class="bar bar-primary"><span [style.width.%]="(c.revenue / maxCategoryRevenue()) * 100"></span></div>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Low stock -->
+    <div class="col-xl-5">
+      <section class="surface p-3 p-md-4 h-100">
+        <h2 class="h6 mb-1">Low stock</h2>
+        <p class="small text-muted mb-3">{{ s.lowStockThreshold }} or fewer left. Update the count and press save.</p>
+        @if (s.lowStock.length === 0) {
+          <p class="text-success small mb-0"><i class="bi bi-check-circle me-1"></i>All products are well stocked.</p>
+        } @else {
+          <ul class="list-unstyled d-grid gap-2 mb-0">
+            @for (p of s.lowStock; track p._id) {
+              <li class="d-flex align-items-center gap-2">
+                <div class="icon-tile tile-xs" [style.--tile]="p.color"><i class="bi" [class]="p.icon"></i>@if (p.image) { <img [src]="p.image" alt="" loading="lazy" (error)="$any($event.target).remove()"> }</div>
+                <a [routerLink]="['/admin/products', p.slug, 'edit']" class="flex-grow-1 small fw-semibold text-reset text-truncate">{{ p.name }}</a>
+                <span class="badge-soft" [class]="p.stock === 0 ? 'badge-out' : 'badge-low'">{{ p.stock === 0 ? 'Out' : p.stock + ' left' }}</span>
+                <label class="visually-hidden" [for]="'stock-' + p._id">New stock for {{ p.name }}</label>
+                <input [id]="'stock-' + p._id" type="number" min="0" class="form-control form-control-sm" style="width:4.5rem" [(ngModel)]="stockDraft[p._id]">
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="saveStock(p._id, p.name)" [disabled]="savingStock() === p._id" aria-label="Save stock">
+                  <i class="bi bi-check2"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+
+    <!-- Recent orders -->
+    <div class="col-xl-7">
+      <section class="surface p-3 p-md-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h6 mb-0">Recent orders</h2>
+          <a routerLink="/admin/orders" class="small fw-semibold">All orders <i class="bi bi-arrow-right"></i></a>
+        </div>
+        @if (s.recentOrders.length === 0) {
+          <p class="text-muted small mb-0">No orders yet.</p>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead><tr class="small text-muted"><th>Order</th><th>Customer</th><th>Date</th><th class="text-end">Total</th><th>Status</th></tr></thead>
+              <tbody>
+                @for (o of s.recentOrders; track o._id) {
+                  <tr>
+                    <td class="fw-semibold">#{{ o._id.slice(-6).toUpperCase() }}</td>
+                    <td class="small">{{ $any(o.user)?.name ?? '—' }}</td>
+                    <td class="small text-muted text-nowrap">{{ o.createdAt | date: 'd MMM, h:mm a' }}</td>
+                    <td class="text-end fw-semibold">{{ o.total | inr }}</td>
+                    <td><span class="status" [class]="'status-' + o.status">{{ statusLabel[o.status] }}</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+}

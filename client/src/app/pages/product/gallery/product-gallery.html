@@ -1,0 +1,45 @@
+<div class="gallery" [class.multi]="photos().length > 1">
+  @if (photos().length > 1) {
+    <div class="thumbs" role="tablist" aria-label="Product photos">
+      @for (u of photos(); track u; let i = $index) {
+        <button type="button" class="thumb" role="tab" [class.active]="i === index()" [attr.aria-selected]="i === index()"
+                [attr.aria-label]="'Photo ' + (i + 1) + ' of ' + photos().length" (click)="select(i)" (mouseenter)="select(i)">
+          <img [src]="u" alt="" (error)="markBroken(u)">
+        </button>
+      }
+    </div>
+  }
+
+  <div class="stage icon-tile tile-lg" [style.--tile]="color()" (touchstart)="touchStart($event)" (touchend)="touchEnd($event)">
+    <i class="bi" [class]="icon()" aria-hidden="true"></i>
+    @if (current(); as u) {
+      <button type="button" class="zoom-area" (click)="open()" [attr.aria-label]="'View ' + name() + ' photo full screen'">
+        <img [src]="u" [alt]="name()" (error)="markBroken(u)">
+      </button>
+      <span class="hint"><i class="bi bi-arrows-fullscreen me-1"></i>Click to view full screen</span>
+    }
+    @if (badge()) { <span class="tag tag-ink position-absolute top-0 start-0 m-3 z-2">{{ badge() }}</span> }
+    @if (photos().length > 1) {
+      <button type="button" class="nav prev" (click)="select(index() - 1)" aria-label="Previous photo"><i class="bi bi-chevron-left"></i></button>
+      <button type="button" class="nav next" (click)="select(index() + 1)" aria-label="Next photo"><i class="bi bi-chevron-right"></i></button>
+      <span class="counter">{{ index() + 1 }} / {{ photos().length }}</span>
+    }
+  </div>
+</div>
+
+@if (viewerOpen()) {
+  <div #viewer class="viewer fade-in" role="dialog" aria-modal="true" [attr.aria-label]="name() + ' photos'" (click)="close()"
+       (touchstart)="touchStart($event)" (touchend)="touchEnd($event)">
+    <button type="button" class="v-close" (click)="close()" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+    <img [src]="current()" [alt]="name()" (click)="$event.stopPropagation()">
+    @if (photos().length > 1) {
+      <button type="button" class="v-nav prev" (click)="$event.stopPropagation(); select(index() - 1)" aria-label="Previous photo"><i class="bi bi-chevron-left"></i></button>
+      <button type="button" class="v-nav next" (click)="$event.stopPropagation(); select(index() + 1)" aria-label="Next photo"><i class="bi bi-chevron-right"></i></button>
+      <div class="v-dots" (click)="$event.stopPropagation()">
+        @for (u of photos(); track u; let i = $index) {
+          <button type="button" [class.on]="i === index()" (click)="select(i)" [attr.aria-label]="'Photo ' + (i + 1)"></button>
+        }
+      </div>
+    }
+  </div>
+}

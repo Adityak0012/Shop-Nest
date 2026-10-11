@@ -1,0 +1,5 @@
+.step { display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: rgba(11,21,48,.06); color: #0b1530; font-size: .85rem; margin-right: .6rem; vertical-align: middle; }
+.pay-option { display: flex; align-items: center; gap: .85rem; padding: .9rem 1rem; border: 1px solid #e1e8f5; border-radius: .75rem; cursor: pointer; transition: border-color .15s, background .15s; }
+.pay-option:hover { border-color: #9aa6c0; }
+.pay-option.selected { border-color: #0b1530; background: rgba(11,21,48,.03); }
+.pay-option.disabled { opacity: .55; cursor: not-allowed; }

@@ -1,0 +1,128 @@
+<div class="container py-4 py-lg-5">
+  @if (loading()) {
+    <div class="row g-5">
+      <div class="col-lg-7"><div class="skeleton" style="aspect-ratio:1"></div></div>
+      <div class="col-lg-5 d-grid gap-3 align-content-start">
+        <div class="skeleton" style="height:1rem;width:30%"></div>
+        <div class="skeleton" style="height:3rem;width:85%"></div>
+        <div class="skeleton" style="height:2rem;width:40%"></div>
+        <div class="skeleton" style="height:10rem"></div>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="surface empty-state">
+      <div class="empty-icon"><i class="bi" [class]="notFound() ? 'bi-question-circle' : 'bi-wifi-off'"></i></div>
+      <h1 class="h3">{{ notFound() ? 'Product not found' : "Couldn't load this product" }}</h1>
+      <p class="text-muted">{{ notFound() ? 'It may have been removed from the store.' : error() }}</p>
+      <a routerLink="/shop" class="btn btn-primary">Back to shop</a>
+    </div>
+  } @else if (product(); as p) {
+    <nav aria-label="Breadcrumb" class="crumbs mb-4">
+      <a routerLink="/">Home</a><span>/</span>
+      <a routerLink="/shop" [queryParams]="{ category: p.category }">{{ p.category }}</a><span>/</span>
+      <span class="text-truncate">{{ p.name }}</span>
+    </nav>
+
+    <div class="row g-4 g-lg-5 fade-in">
+      <div class="col-lg-7">
+        <app-product-gallery [name]="p.name" [icon]="p.icon" [color]="p.color" [image]="p.image" [images]="p.images"
+                             [badge]="discount() > 0 && p.stock > 0 ? '−' + discount() + '%' : ''" />
+      </div>
+
+      <div class="col-lg-5">
+        <div class="buy-box">
+          <p class="eyebrow mb-2">{{ p.brand }}</p>
+          <h1 class="pd-title mb-3">{{ p.name }}</h1>
+          <div class="d-flex align-items-center gap-2 mb-4 small">
+            <span class="stars" aria-hidden="true">
+              @for (s of [1,2,3,4,5]; track s) { <i class="bi" [class]="p.rating >= s ? 'bi-star-fill' : p.rating >= s - 0.5 ? 'bi-star-half' : 'bi-star'"></i> }
+            </span>
+            <span class="fw-semibold">{{ p.rating.toFixed(1) }}</span>
+            <a href="#reviews" class="text-muted" (click)="scrollToReviews($event)">· {{ p.numReviews.toLocaleString('en-IN') }} {{ p.numReviews === 1 ? 'review' : 'reviews' }}</a>
+            @if (p.sold > 0) { <span class="text-muted">· {{ p.sold }} sold</span> }
+          </div>
+
+          <div class="d-flex align-items-baseline flex-wrap gap-2 mb-1">
+            <span class="pd-price">{{ p.price | inr }}</span>
+            @if (p.mrp > p.price) {
+              <span class="mrp fs-6">MRP {{ p.mrp | inr }}</span>
+              <span class="badge-soft badge-deal">Save {{ p.mrp - p.price | inr }}</span>
+            }
+          </div>
+          <p class="small text-muted mb-4">Inclusive of all taxes</p>
+
+          <p class="stock-line mb-3">
+            @if (p.stock === 0) { <i class="bi bi-circle-fill text-danger"></i>Out of stock }
+            @else if (p.stock <= 5) { <i class="bi bi-circle-fill" style="color:#c27c0e"></i>Only {{ p.stock }} left, order soon }
+            @else { <i class="bi bi-circle-fill text-success"></i>In stock, ready to ship }
+          </p>
+
+          @if (p.stock > 0) {
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <div class="qty-stepper" role="group" aria-label="Quantity">
+                <button type="button" (click)="changeQty(-1)" [disabled]="qty() <= 1" aria-label="Decrease quantity"><i class="bi bi-dash"></i></button>
+                <span aria-live="polite">{{ qty() }}</span>
+                <button type="button" (click)="changeQty(1)" [disabled]="qty() >= maxSelectable()" aria-label="Increase quantity"><i class="bi bi-plus"></i></button>
+              </div>
+              <button type="button" class="btn btn-primary btn-lg flex-grow-1" (click)="addToCart()" [disabled]="!canAdd()">
+                <i class="bi bi-bag-plus me-1"></i>Add to bag
+              </button>
+              <button type="button" class="heart-btn heart-lg" [class.on]="wishlist.has(p._id)" (click)="wishlist.toggle(p)"
+                      [attr.aria-pressed]="wishlist.has(p._id)" [attr.aria-label]="wishlist.has(p._id) ? 'Remove from wishlist' : 'Save to wishlist'">
+                <i class="bi" [class]="wishlist.has(p._id) ? 'bi-heart-fill' : 'bi-heart'"></i>
+              </button>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-lg w-100" (click)="addToCart(true)">Buy now</button>
+            @if (inCart()) { <p class="small text-muted mt-2 mb-0"><i class="bi bi-bag-check me-1"></i>{{ inCart() }} already in your bag · <a routerLink="/cart">View bag</a></p> }
+          } @else {
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-light btn-lg flex-grow-1" disabled>Sold out</button>
+              <button type="button" class="btn btn-outline-primary btn-lg" (click)="wishlist.toggle(p)">
+                <i class="bi me-1" [class]="wishlist.has(p._id) ? 'bi-heart-fill' : 'bi-heart'"></i>{{ wishlist.has(p._id) ? 'Saved' : 'Save for later' }}
+              </button>
+            </div>
+          }
+
+          <div class="assure mt-4">
+            <div><i class="bi bi-truck"></i><span>Free delivery over ₹999</span></div>
+            <div><i class="bi bi-cash-coin"></i><span>Cash on Delivery</span></div>
+            <div><i class="bi bi-arrow-repeat"></i><span>Cancel before dispatch</span></div>
+          </div>
+
+          <div class="details mt-4">
+            @if (p.highlights.length) {
+              <details open>
+                <summary>Highlights</summary>
+                <ul class="list-unstyled d-grid gap-2 mb-0">
+                  @for (h of p.highlights; track h) { <li class="d-flex gap-2"><i class="bi bi-check2 text-bronze"></i><span>{{ h }}</span></li> }
+                </ul>
+              </details>
+            }
+            <details open>
+              <summary>Description</summary>
+              <p class="text-muted mb-0">{{ p.description }}</p>
+            </details>
+            <details>
+              <summary>Delivery & payment</summary>
+              <p class="text-muted mb-0">Orders above ₹999 ship free, otherwise ₹49. Pay online with UPI or cards through Razorpay, or choose Cash on Delivery. You can cancel any time before your order is dispatched.</p>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-product-reviews [productId]="p._id" [productSlug]="p.slug" (ratingChange)="onRatingChange($event)" />
+
+    @if (related().length) {
+      <section class="section pb-0" aria-labelledby="rel-title">
+        <div class="section-head">
+          <div><p class="eyebrow mb-2">You may also like</p><h2 id="rel-title">More in {{ p.category }}</h2></div>
+          <a routerLink="/shop" [queryParams]="{ category: p.category }" class="link-arrow">View all</a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-4 gx-3 gx-md-4 gy-5">
+          @for (r of related(); track r._id) { <div class="col"><app-product-card [product]="r" /></div> }
+        </div>
+      </section>
+    }
+  }
+</div>

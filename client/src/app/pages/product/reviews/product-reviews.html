@@ -1,0 +1,146 @@
+<section class="section pb-0" id="reviews" aria-labelledby="rev-title">
+  <div class="section-head">
+    <div><p class="eyebrow mb-2">What customers say</p><h2 id="rev-title">Ratings & reviews</h2></div>
+  </div>
+
+  <div class="row g-4 g-lg-5">
+    <!-- Summary -->
+    <div class="col-lg-4">
+      <div class="summary">
+        @if (data(); as d) {
+          <div class="d-flex align-items-end gap-3 mb-2">
+            <span class="avg">{{ d.summary.count ? d.summary.average.toFixed(1) : '–' }}</span>
+            <div class="pb-2">
+              <div class="stars">@for (s of [1,2,3,4,5]; track s) { <i class="bi" [class]="starClass(d.summary.average, s)"></i> }</div>
+              <div class="small text-muted">{{ d.summary.count }} {{ d.summary.count === 1 ? 'review' : 'reviews' }}</div>
+            </div>
+          </div>
+          <ul class="list-unstyled bars mb-4">
+            @for (s of [5,4,3,2,1]; track s) {
+              <li>
+                <button type="button" class="bar-row" [class.active]="stars() === s" (click)="filterStars(s)"
+                        [attr.aria-pressed]="stars() === s" [attr.aria-label]="'Show ' + s + ' star reviews'">
+                  <span class="lbl">{{ s }} <i class="bi bi-star-fill"></i></span>
+                  <span class="track"><span [style.width.%]="percent()(s)"></span></span>
+                  <span class="pct">{{ percent()(s) }}%</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+
+        <!-- Write / edit -->
+        <div class="write-box">
+          @if (!auth.isLoggedIn()) {
+            <p class="fw-semibold mb-1">Bought this product?</p>
+            <p class="small text-muted mb-3">Log in to share your experience with other shoppers.</p>
+            <a [routerLink]="['/login']" [queryParams]="{ returnUrl: '/product/' + productSlug() }" class="btn btn-outline-primary w-100">Log in to review</a>
+          } @else if (mine(); as m) {
+            <p class="fw-semibold mb-1">You rated this {{ m.rating }}/5</p>
+            <p class="small text-muted mb-3">Thanks for reviewing. You can edit or delete your review any time.</p>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-primary flex-grow-1" (click)="openForm()">Edit review</button>
+              <button type="button" class="btn btn-light" (click)="remove()" [disabled]="saving()" aria-label="Delete my review"><i class="bi bi-trash3"></i></button>
+            </div>
+          } @else if (canReview()) {
+            <p class="fw-semibold mb-1">You bought this</p>
+            <p class="small text-muted mb-3">How was it? Your review helps other shoppers decide.</p>
+            <button type="button" class="btn btn-primary w-100" (click)="openForm()">Write a review</button>
+          } @else {
+            <p class="fw-semibold mb-1"><i class="bi bi-patch-check me-1"></i>Verified reviews only</p>
+            <p class="small text-muted mb-0">Only customers who ordered this product can review it, so every review here is from a real buyer.</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="col-lg-8">
+      @if (formOpen()) {
+        <form class="review-form fade-in mb-4" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <h3 class="h6 mb-3">{{ mine() ? 'Edit your review' : 'Write your review' }}</h3>
+          <div class="mb-3">
+            <span class="form-label d-block" id="rate-label">Your rating</span>
+            <div class="star-picker" role="radiogroup" aria-labelledby="rate-label" (mouseleave)="hoverStar.set(0)">
+              @for (s of [1,2,3,4,5]; track s) {
+                <button type="button" role="radio" [attr.aria-checked]="form.value.rating === s" [attr.aria-label]="s + ' star' + (s > 1 ? 's' : '')"
+                        (click)="setRating(s)" (mouseenter)="hoverStar.set(s)">
+                  <i class="bi" [class]="(hoverStar() || form.value.rating || 0) >= s ? 'bi-star-fill' : 'bi-star'"></i>
+                </button>
+              }
+              <span class="small text-muted ms-2">{{ ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'][hoverStar() || form.value.rating || 0] }}</span>
+            </div>
+            @if (form.controls.rating.touched && !form.value.rating) { <div class="text-danger small mt-1">Choose a star rating.</div> }
+          </div>
+          <div class="mb-3">
+            <label for="rv-title" class="form-label">Headline <span class="text-muted fw-normal">(optional)</span></label>
+            <input id="rv-title" class="form-control" formControlName="title" maxlength="80" placeholder="Sum it up in a few words">
+          </div>
+          <div class="mb-3">
+            <label for="rv-comment" class="form-label">Your review</label>
+            <textarea id="rv-comment" rows="4" class="form-control" formControlName="comment" maxlength="1000"
+                      [class.is-invalid]="form.controls.comment.invalid && form.controls.comment.touched"
+                      placeholder="What did you like or dislike? How are you using it?"></textarea>
+            <div class="d-flex justify-content-between">
+              <div class="invalid-feedback d-block">@if (form.controls.comment.invalid && form.controls.comment.touched) { Write at least 10 characters. }</div>
+              <span class="small text-muted">{{ form.value.comment?.length || 0 }}/1000</span>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">
+              @if (saving()) { <span class="spinner-border spinner-border-sm me-1"></span> } {{ mine() ? 'Save changes' : 'Post review' }}
+            </button>
+            <button type="button" class="btn btn-light" (click)="formOpen.set(false)">Cancel</button>
+          </div>
+        </form>
+      }
+
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+        <p class="small text-muted mb-0">
+          @if (stars()) { Showing {{ stars() }}-star reviews · <button type="button" class="btn btn-link btn-sm p-0" (click)="filterStars(null)">Show all</button> }
+          @else if (data(); as d) { {{ d.total }} reviews }
+        </p>
+        <label class="d-flex align-items-center gap-2 small text-muted">Sort
+          <select class="form-select form-select-sm" style="width: auto" [value]="sort()" (change)="setSort($any($event.target).value)">
+            <option value="newest">Newest</option>
+            <option value="highest">Highest rated</option>
+            <option value="lowest">Lowest rated</option>
+          </select>
+        </label>
+      </div>
+
+      @if (error()) {
+        <p class="text-danger">{{ error() }}</p>
+      } @else if (loading() && !data()) {
+        @for (i of [1,2,3]; track i) { <div class="skeleton mb-3" style="height: 6rem"></div> }
+      } @else if (data(); as d) {
+        @if (d.items.length === 0) {
+          <div class="empty-state py-5"><div class="empty-icon"><i class="bi bi-chat-square-text"></i></div><p class="text-muted mb-0">No reviews yet.</p></div>
+        } @else {
+          <ul class="list-unstyled review-list" [class.opacity-50]="loading()">
+            @for (r of d.items; track r._id) {
+              <li>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="rv-avatar">{{ r.name.charAt(0) }}</span>
+                  <div>
+                    <div class="fw-semibold small">{{ r.name }}
+                      @if (r.userId === auth.user()?.id) { <span class="badge-soft badge-low ms-1">You</span> }
+                    </div>
+                    <div class="small text-muted">{{ r.createdAt | date: 'd MMM y' }}
+                      @if (r.verified) { · <span class="verified"><i class="bi bi-patch-check-fill"></i> Verified purchase</span> }
+                    </div>
+                  </div>
+                </div>
+                <div class="stars small mb-1">@for (s of [1,2,3,4,5]; track s) { <i class="bi" [class]="r.rating >= s ? 'bi-star-fill' : 'bi-star'"></i> }
+                  @if (r.title) { <strong class="ms-2 text-body">{{ r.title }}</strong> }
+                </div>
+                <p class="mb-0">{{ r.comment }}</p>
+              </li>
+            }
+          </ul>
+          <app-pagination [page]="d.page" [pages]="d.pages" (pageChange)="page.set($event)" />
+        }
+      }
+    </div>
+  </div>
+</section>

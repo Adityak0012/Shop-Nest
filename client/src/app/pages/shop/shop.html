@@ -1,0 +1,121 @@
+@let q = query();
+<div class="container py-4">
+  <nav aria-label="Breadcrumb" class="small mb-2">
+    <a routerLink="/" class="text-muted">Home</a> <i class="bi bi-chevron-right mx-1 text-muted small"></i>
+    <span>{{ q.category || 'All products' }}</span>
+  </nav>
+
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+    <div>
+      <h1 class="shop-title mb-1">
+        @if (q.search) { Results for "{{ q.search }}" } @else { {{ q.category || 'All products' }} }
+      </h1>
+      <p class="text-muted mb-0 small" aria-live="polite">
+        @if (result(); as r) { {{ r.total }} {{ r.total === 1 ? 'product' : 'products' }} }
+      </p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-outline-secondary d-lg-none" (click)="filtersOpen.set(!filtersOpen())" [attr.aria-expanded]="filtersOpen()">
+        <i class="bi bi-sliders me-1"></i>Filters @if (activeFilterCount()) { <span class="badge bg-primary ms-1">{{ activeFilterCount() }}</span> }
+      </button>
+      <label for="sort" class="small text-muted text-nowrap d-none d-sm-block">Sort by</label>
+      <select id="sort" class="form-select" style="min-width: 12rem" [ngModel]="q.sort" (ngModelChange)="update({ sort: $event })">
+        @for (o of sortOptions; track o.value) { <option [value]="o.value">{{ o.label }}</option> }
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Filters -->
+    <aside class="col-lg-3" [class.d-none]="!filtersOpen()" [class.d-lg-block]="true" aria-label="Filters">
+      <div class="filters">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h2 class="h6 mb-0">Filters</h2>
+          @if (activeFilterCount()) { <button type="button" class="btn btn-link btn-sm p-0" (click)="clearAll()">Clear all</button> }
+        </div>
+
+        <p class="small-caps mt-3 mb-2">Category</p>
+        <div class="d-grid gap-1">
+          <button type="button" class="filter-option" [class.active]="!q.category" (click)="update({ category: '' })">
+            <i class="bi bi-grid"></i><span class="flex-grow-1">All categories</span>
+          </button>
+          @for (c of categories(); track c.name) {
+            <button type="button" class="filter-option" [class.active]="q.category === c.name" (click)="update({ category: c.name })"
+                    [attr.aria-pressed]="q.category === c.name">
+              <i class="bi" [class]="categoryIcon[c.name] || 'bi-box-seam'"></i><span class="flex-grow-1">{{ c.name }}</span>
+              <span class="small text-muted">{{ c.count }}</span>
+            </button>
+          }
+        </div>
+
+        <p class="small-caps mt-4 mb-2">Price (₹)</p>
+        <form class="d-flex align-items-center gap-2" (ngSubmit)="applyPrice()">
+          <label class="visually-hidden" for="min">Minimum price</label>
+          <input id="min" name="min" type="number" inputmode="numeric" min="0" class="form-control" placeholder="Min" [(ngModel)]="minPrice">
+          <span class="text-muted">–</span>
+          <label class="visually-hidden" for="max">Maximum price</label>
+          <input id="max" name="max" type="number" inputmode="numeric" min="0" class="form-control" placeholder="Max" [(ngModel)]="maxPrice">
+          <button type="submit" class="btn btn-outline-primary px-3" aria-label="Apply price filter"><i class="bi bi-check2"></i></button>
+        </form>
+        <div class="d-flex flex-wrap gap-1 mt-2">
+          <button type="button" class="chip" (click)="update({ minPrice: null, maxPrice: 999 })">Under ₹999</button>
+          <button type="button" class="chip" (click)="update({ minPrice: 1000, maxPrice: 4999 })">₹1k–5k</button>
+          <button type="button" class="chip" (click)="update({ minPrice: 5000, maxPrice: 19999 })">₹5k–20k</button>
+          <button type="button" class="chip" (click)="update({ minPrice: 20000, maxPrice: null })">₹20k+</button>
+        </div>
+
+        <p class="small-caps mt-4 mb-2">Availability</p>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="instock" [ngModel]="q.inStock" (ngModelChange)="update({ inStock: $event })">
+          <label class="form-check-label" for="instock">In stock only</label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Results -->
+    <section class="col-lg-9" aria-label="Products">
+      @if (q.search || q.category || q.minPrice !== null || q.maxPrice !== null || q.inStock) {
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          @if (q.search) { <button type="button" class="chip chip-active" (click)="update({ search: '' })">"{{ q.search }}" <i class="bi bi-x"></i></button> }
+          @if (q.category) { <button type="button" class="chip chip-active" (click)="update({ category: '' })">{{ q.category }} <i class="bi bi-x"></i></button> }
+          @if (q.minPrice !== null || q.maxPrice !== null) {
+            <button type="button" class="chip chip-active" (click)="update({ minPrice: null, maxPrice: null })">
+              ₹{{ q.minPrice ?? 0 }} – {{ q.maxPrice !== null ? '₹' + q.maxPrice : 'any' }} <i class="bi bi-x"></i>
+            </button>
+          }
+          @if (q.inStock) { <button type="button" class="chip chip-active" (click)="update({ inStock: false })">In stock <i class="bi bi-x"></i></button> }
+        </div>
+      }
+
+      @if (error()) {
+        <div class="surface empty-state">
+          <div class="empty-icon" style="background:#fef2f2;color:#b91c1c"><i class="bi bi-wifi-off"></i></div>
+          <h2 class="h5">Couldn't load products</h2>
+          <p class="text-muted">{{ error() }}</p>
+          <button class="btn btn-primary" type="button" (click)="load()"><i class="bi bi-arrow-clockwise me-1"></i>Try again</button>
+        </div>
+      } @else if (loading() && !result()) {
+        <div class="row row-cols-2 row-cols-md-3 gx-3 gx-md-4 gy-5">
+          @for (i of [1,2,3,4,5,6]; track i) { <div class="col"><div class="skeleton" style="aspect-ratio: 4/5"></div></div> }
+        </div>
+      } @else if (result(); as r) {
+        @if (r.items.length === 0) {
+          <div class="surface empty-state">
+            <div class="empty-icon"><i class="bi bi-search"></i></div>
+            <h2 class="h5">No products match</h2>
+            <p class="text-muted">Try a different search word or remove some filters.</p>
+            <button class="btn btn-primary" type="button" (click)="clearAll()">Clear filters</button>
+          </div>
+        } @else {
+          <div class="row row-cols-2 row-cols-md-3 gx-3 gx-md-4 gy-5 results" [class.is-loading]="loading()">
+            @for (p of r.items; track p._id) { <div class="col"><app-product-card [product]="p" /></div> }
+          </div>
+          <app-pagination [page]="r.page" [pages]="r.pages" (pageChange)="update({ page: $event }, true)" />
+          <p class="text-center small text-muted mt-2 mb-0">
+            Showing {{ (r.page - 1) * (r.limit || 12) + 1 }}–{{ (r.page - 1) * (r.limit || 12) + r.items.length }} of {{ r.total }}
+          </p>
+        }
+      }
+    </section>
+  </div>
+</div>

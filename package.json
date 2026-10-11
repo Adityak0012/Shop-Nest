@@ -1,0 +1,17 @@
+{
+  "name": "shopnest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ShopNest - full-stack MEAN e-commerce platform (MongoDB, Express.js, Angular, Node.js)",
+  "scripts": {
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n api,web -c cyan,green \"npm run dev --prefix server\" \"npm start --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "seed": "npm run seed --prefix server",
+    "images": "npm run images --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}

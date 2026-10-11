@@ -1,0 +1,152 @@
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+   <div class="hero-panel">
+    <div class="row align-items-center gx-4 gx-lg-5 gy-5">
+      <div class="col-lg-6 fade-in">
+        <p class="eyebrow mb-3">The 2026 collection</p>
+        <h1 class="display-hero mb-4">Things worth<br><em>owning.</em></h1>
+        <p class="lead-copy mb-4">
+          Headphones, laptops, wearables and everyday essentials, chosen for how they look, feel and last.
+          Free delivery over {{ freeShippingAbove() | inr }} and Cash on Delivery across India.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mb-5">
+          <a routerLink="/shop" class="btn btn-primary btn-lg px-4">Shop the collection</a>
+          <a routerLink="/shop" [queryParams]="{ sort: 'popular' }" class="btn btn-outline-primary btn-lg px-4">Bestsellers</a>
+        </div>
+        <dl class="trust">
+          <div><dt>4.5<i class="bi bi-star-fill"></i></dt><dd>Average rating</dd></div>
+          <div><dt>36</dt><dd>Curated products</dd></div>
+          <div><dt>COD</dt><dd>Pay on delivery</dd></div>
+        </dl>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="mosaic" aria-hidden="true">
+          <a routerLink="/product/pulse-anc-headphones" class="m-tile m-big" tabindex="-1">
+            <img src="/images/products/pulse-anc-headphones.jpg" alt="" (error)="hideImg($event)">
+            <span class="m-chip"><strong>Pulse ANC Headphones</strong><span>{{ 7999 | inr }}</span></span>
+          </a>
+          <a routerLink="/product/stride-running-sneakers" class="m-tile" tabindex="-1">
+            <img src="/images/products/stride-running-sneakers.jpg" alt="" (error)="hideImg($event)">
+          </a>
+          <a routerLink="/product/classic-steel-watch" class="m-tile" tabindex="-1">
+            <img src="/images/products/classic-steel-watch.jpg" alt="" (error)="hideImg($event)">
+          </a>
+        </div>
+      </div>
+    </div>
+   </div>
+  </div>
+</section>
+
+@if (error()) {
+  <section class="container section">
+    <div class="surface empty-state">
+      <div class="empty-icon"><i class="bi bi-wifi-off"></i></div>
+      <h2 class="h4">Couldn't load the store</h2>
+      <p class="text-muted">{{ error() }}</p>
+      <button class="btn btn-primary" type="button" (click)="load()"><i class="bi bi-arrow-clockwise me-1"></i>Try again</button>
+    </div>
+  </section>
+} @else {
+  <!-- Categories -->
+  <section class="container section pb-0" aria-labelledby="cat-title">
+    <div class="section-head">
+      <div><p class="eyebrow mb-2">Browse</p><h2 id="cat-title">Shop by category</h2></div>
+      <a routerLink="/shop" class="link-arrow">View all</a>
+    </div>
+    @if (loading()) {
+      <div class="cat-skeletons">@for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton" style="aspect-ratio: 3/4"></div> }</div>
+    } @else {
+      <!-- Auto-scrolling rail: the list is rendered twice so the loop is seamless. Hover or focus pauses it. -->
+      <div class="cat-marquee" role="region" aria-label="Product categories">
+        <div class="cat-track" [style.--dur]="categories().length * 4 + 's'">
+          @for (round of [0, 1]; track round) {
+            @for (c of categories(); track c.name) {
+              <a class="cat-card" routerLink="/shop" [queryParams]="{ category: c.name }"
+                 [attr.aria-hidden]="round === 1 ? 'true' : null" [attr.tabindex]="round === 1 ? -1 : null">
+                <span class="cat-media">
+                  <i class="bi" [class]="categoryIcon[c.name] || 'bi-box-seam'" aria-hidden="true"></i>
+                  @if (categoryImage[c.name]) { <img [src]="categoryImage[c.name]" alt="" loading="lazy" (error)="hideImg($event)"> }
+                </span>
+                <span class="cat-name">{{ c.name }}</span>
+                <span class="cat-count">{{ c.count }} products</span>
+              </a>
+            }
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- Featured -->
+  <section class="container section" aria-labelledby="feat-title">
+    <div class="section-head">
+      <div><p class="eyebrow mb-2">Editor's picks</p><h2 id="feat-title">Loved for a reason</h2></div>
+      <a routerLink="/shop" [queryParams]="{ sort: 'rating' }" class="link-arrow">Top rated</a>
+    </div>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 gx-3 gx-md-4 gy-5">
+      @if (loading()) {
+        @for (i of [1,2,3,4,5,6,7,8]; track i) { <div class="col"><div class="skeleton" style="aspect-ratio: 4/5"></div></div> }
+      } @else {
+        @for (p of featured(); track p._id) { <div class="col"><app-product-card [product]="p" /></div> }
+      }
+    </div>
+  </section>
+
+  <!-- Editorial: sound -->
+  <section class="container" aria-labelledby="sound-title">
+    <div class="editorial">
+      <div class="ed-media">
+        <img src="/images/products/retro-vinyl-turntable.jpg" alt="A turntable playing an orange vinyl record by a window" loading="lazy" (error)="hideImg($event)">
+      </div>
+      <div class="ed-copy">
+        <p class="eyebrow mb-3">The sound edit</p>
+        <h2 id="sound-title" class="mb-3">Analog warmth.<br><em>Wireless freedom.</em></h2>
+        <p class="text-muted mb-4">From noise-cancelling headphones to a belt-drive turntable with Bluetooth out, everything you need to listen better at home and on the move.</p>
+        <a routerLink="/shop" [queryParams]="{ category: 'Audio' }" class="btn btn-primary px-4">Shop audio</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Best sellers -->
+  <section class="container section" aria-labelledby="best-title">
+    <div class="section-head">
+      <div><p class="eyebrow mb-2">Most wanted</p><h2 id="best-title">Bestsellers</h2></div>
+      <a routerLink="/shop" [queryParams]="{ sort: 'popular' }" class="link-arrow">See all</a>
+    </div>
+    <div class="row row-cols-2 row-cols-md-4 gx-3 gx-md-4 gy-5">
+      @if (loading()) {
+        @for (i of [1,2,3,4]; track i) { <div class="col"><div class="skeleton" style="aspect-ratio: 4/5"></div></div> }
+      } @else {
+        @for (p of bestSellers(); track p._id) { <div class="col"><app-product-card [product]="p" /></div> }
+      }
+    </div>
+  </section>
+
+  <!-- Editorial: campus -->
+  <section class="container" aria-labelledby="campus-title">
+    <div class="editorial reverse dark">
+      <div class="ed-media">
+        <img src="/images/products/aerobook-14-thin-light.jpg" alt="A thin silver laptop on a white desk" loading="lazy" (error)="hideImg($event)">
+      </div>
+      <div class="ed-copy">
+        <p class="eyebrow mb-3">Built for campus</p>
+        <h2 id="campus-title" class="mb-3">Laptops that keep up<br><em>from {{ 32990 | inr }}</em></h2>
+        <p class="mb-4 ed-muted">Thin and light, gaming, or everyday. Compare specs and prices side by side, then pay on delivery.</p>
+        <a routerLink="/shop" [queryParams]="{ category: 'Laptops' }" class="btn btn-light px-4">Browse laptops</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Perks -->
+  <section class="container section pb-0">
+    <div class="perks">
+      <div class="perk"><i class="bi bi-truck"></i><strong>Free delivery</strong><span>On orders over {{ freeShippingAbove() | inr }}</span></div>
+      <div class="perk"><i class="bi bi-cash-coin"></i><strong>Cash on Delivery</strong><span>Pay when it arrives</span></div>
+      <div class="perk"><i class="bi bi-shield-check"></i><strong>Secure payments</strong><span>UPI and cards via Razorpay</span></div>
+      <div class="perk"><i class="bi bi-arrow-repeat"></i><strong>Easy cancellation</strong><span>Any time before dispatch</span></div>
+    </div>
+  </section>
+}
