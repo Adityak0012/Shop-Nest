@@ -1,6 +1,12 @@
 .auth-card { max-width: 28rem; }
 .auth-icon {
-  width: 3.5rem; height: 3.5rem; border-radius: 1rem; display: inline-grid; place-items: center; margin-bottom: 1rem;
-  background: rgba(11, 21, 48, 0.06); color: #0b1530; font-size: 1.6rem;
+  width: 3.5rem; height: 3.5rem; border-radius: 0.5rem; display: inline-grid; place-items: center; margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.06); color: #111113; font-size: 1.6rem;
 }
-.demo-box { background: #f1f5fd; border-radius: 0.75rem; padding: 0.9rem 1rem; }
+
+.google-wrap { margin-bottom: 1.25rem; }
+.g-slot { display: flex; justify-content: center; min-height: 44px; }
+.g-fallback { display: flex; align-items: center; justify-content: center; font-weight: 600; --bs-btn-color: #111113; --bs-btn-bg: #fff; --bs-btn-border-color: #adada8; --bs-btn-hover-color: #111113; --bs-btn-hover-bg: #ecece9; --bs-btn-hover-border-color: #111113; --bs-btn-active-color: #111113; --bs-btn-active-bg: #e7e7e4; --bs-btn-active-border-color: #111113; --bs-btn-focus-shadow-rgb: 20, 20, 20; }
+.or-divider { display: flex; align-items: center; gap: 0.8rem; margin-top: 1.25rem; color: #68686b; font-size: 0.8rem; &::before, &::after { content: ''; flex: 1; border-top: 1px solid #dcdcd8; } }
+
+.demo-note { background: #ecece9; border-radius: 0.45rem; padding: 0.8rem 1rem; color: #3b3a36; }

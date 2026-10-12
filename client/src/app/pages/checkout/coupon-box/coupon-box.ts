@@ -58,11 +58,11 @@ import { InrPipe } from '../../../shared/inr.pipe';
     </section>
   `,
   styles: `
-    .coupon-box { background: #fff; border: 1px solid #e1e8f5; border-radius: .75rem; padding: 1.25rem 1.5rem; }
-    .code { font-weight: 700; letter-spacing: .08em; font-size: .78rem; border: 1px dashed #2457f5; color: #2457f5; border-radius: .35rem; padding: .15rem .45rem; }
-    .applied { display: flex; align-items: center; gap: .75rem; background: #ecf6f0; color: #1f5f3d; border-radius: .6rem; padding: .75rem .9rem; }
+    .coupon-box { background: var(--sn-surface); border: 1px solid #dcdcd8; border-radius: .75rem; padding: 1.25rem 1.5rem; }
+    .code { font-weight: 700; letter-spacing: .08em; font-size: .78rem; border: 1px dashed #17171a; color: #17171a; border-radius: .35rem; padding: .15rem .45rem; }
+    .applied { display: flex; align-items: center; gap: .75rem; background: rgba(27, 127, 85,0.12); color: #1b7f55; border-radius: .6rem; padding: .75rem .9rem; }
     .applied .bi { font-size: 1.2rem; }
-    .offers li { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; border-top: 1px solid #e8eef9; }
+    .offers li { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; border-top: 1px solid #ecece9; }
     .offers li.locked { opacity: .65; }
     .min-w-0 { min-width: 0; }
   `,

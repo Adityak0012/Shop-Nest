@@ -15,7 +15,7 @@ import { InrPipe } from '../../shared/inr.pipe';
         <div class="d-grid gap-3">@for (i of [1,2,3]; track i) { <div class="skeleton" style="height:7rem"></div> }</div>
       } @else if (error()) {
         <div class="surface empty-state">
-          <div class="empty-icon" style="background:#fef2f2;color:#b91c1c"><i class="bi bi-wifi-off"></i></div>
+          <div class="empty-icon" style="background:rgba(224,134,106,0.14);color:#e5361b"><i class="bi bi-wifi-off"></i></div>
           <p class="text-muted">{{ error() }}</p>
           <button class="btn btn-primary" type="button" (click)="load()">Try again</button>
         </div>
@@ -53,7 +53,7 @@ import { InrPipe } from '../../shared/inr.pipe';
       }
     </div>
   `,
-  styles: `.order-row { transition: box-shadow .2s, border-color .2s; } .order-row:hover { box-shadow: var(--sn-shadow-md); border-color: #cfd8ea; }`,
+  styles: `.order-row { transition: box-shadow .2s, border-color .2s; } .order-row:hover { box-shadow: var(--sn-shadow-md); border-color: #bdbdb8; }`,
 })
 export class Orders {
   private shop = inject(ShopService);

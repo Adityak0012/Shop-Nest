@@ -12,6 +12,13 @@ export const routes: Routes = [
   { path: 'orders/:id', title: 'Order details · ShopNest', canActivate: [authGuard], loadComponent: () => import('./pages/order-detail/order-detail').then((m) => m.OrderDetail) },
   { path: 'login', title: 'Log in · ShopNest', canActivate: [guestGuard], loadComponent: () => import('./pages/auth/login').then((m) => m.Login) },
   { path: 'register', title: 'Create account · ShopNest', canActivate: [guestGuard], loadComponent: () => import('./pages/auth/register').then((m) => m.Register) },
+  { path: 'about', title: 'About · ShopNest', data: { page: 'about' }, loadComponent: () => import('./pages/info/info-page').then((m) => m.InfoPage) },
+  { path: 'contact', title: 'Contact · ShopNest', data: { page: 'contact' }, loadComponent: () => import('./pages/info/info-page').then((m) => m.InfoPage) },
+  { path: 'shipping-returns', title: 'Shipping & returns · ShopNest', data: { page: 'shipping' }, loadComponent: () => import('./pages/info/info-page').then((m) => m.InfoPage) },
+  { path: 'privacy', title: 'Privacy policy · ShopNest', data: { page: 'privacy' }, loadComponent: () => import('./pages/info/info-page').then((m) => m.InfoPage) },
+  { path: 'terms', title: 'Terms of use · ShopNest', data: { page: 'terms' }, loadComponent: () => import('./pages/info/info-page').then((m) => m.InfoPage) },
+  { path: 'forgot-password', title: 'Forgot password · ShopNest', canActivate: [guestGuard], loadComponent: () => import('./pages/auth/forgot-password').then((m) => m.ForgotPassword) },
+  { path: 'reset-password/:token', title: 'Reset password · ShopNest', loadComponent: () => import('./pages/auth/reset-password').then((m) => m.ResetPassword) },
   {
     path: 'admin',
     canActivate: [adminGuard],

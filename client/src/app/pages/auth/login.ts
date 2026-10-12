@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -20,6 +20,20 @@ import { errorMessage } from '../../core/models';
         @if (expired) { <div class="alert alert-warning small py-2">Your session expired. Please log in again.</div> }
         @if (error()) { <div class="alert alert-danger small py-2" role="alert"><i class="bi bi-exclamation-circle me-1"></i>{{ error() }}</div> }
 
+        <div class="google-wrap">
+          <div #gbtn class="g-slot" [class.d-none]="!googleReady()"></div>
+          @if (!googleReady()) {
+            <button type="button" class="btn btn-light btn-lg w-100 g-fallback" (click)="googleHelp.set(!googleHelp())">
+              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.3l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+              <span class="ms-2">Sign in with Google</span>
+            </button>
+            @if (googleHelp()) {
+              <p class="small text-muted mt-2 mb-0">Google sign-in isn't switched on yet. Add <code>GOOGLE_CLIENT_ID</code> to <code>server/.env</code> and restart the server.</p>
+            }
+          }
+          <div class="or-divider"><span>or log in with email</span></div>
+        </div>
+
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="d-grid gap-3">
           <div>
             <label for="email" class="form-label">Email</label>
@@ -28,7 +42,10 @@ import { errorMessage } from '../../core/models';
             <div class="invalid-feedback">Enter a valid email address.</div>
           </div>
           <div>
-            <label for="password" class="form-label">Password</label>
+            <div class="d-flex justify-content-between align-items-baseline">
+              <label for="password" class="form-label">Password</label>
+              <a routerLink="/forgot-password" class="small fw-semibold">Forgot password?</a>
+            </div>
             <div class="input-group has-validation">
               <input id="password" [type]="show() ? 'text' : 'password'" class="form-control" formControlName="password" autocomplete="current-password"
                      [class.is-invalid]="form.controls.password.invalid && form.controls.password.touched">
@@ -44,14 +61,6 @@ import { errorMessage } from '../../core/models';
         </form>
 
         <p class="text-center mt-4 mb-0">New to ShopNest? <a [routerLink]="['/register']" [queryParams]="{ returnUrl }" class="fw-semibold">Create an account</a></p>
-
-        <div class="demo-box mt-4">
-          <p class="small fw-semibold mb-2"><i class="bi bi-info-circle me-1"></i>Demo accounts (local test data)</p>
-          <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="fill('demo@shopnest.dev', 'Demo@123')"><i class="bi bi-person me-1"></i>Customer</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="fill('admin@shopnest.dev', 'Admin@123')"><i class="bi bi-shield-lock me-1"></i>Admin</button>
-          </div>
-        </div>
       </div>
     </div>
   `,
@@ -75,8 +84,48 @@ export class Login {
     password: ['', Validators.required],
   });
 
-  fill(email: string, password: string): void {
-    this.form.setValue({ email, password });
+  readonly googleReady = signal(false);
+  readonly googleHelp = signal(false);
+  private slot = viewChild<ElementRef<HTMLElement>>('gbtn');
+
+  constructor() {
+    afterNextRender(() => {
+      this.auth.googleConfig().subscribe({
+        next: ({ googleClientId }) => { if (googleClientId) this.loadGoogle(googleClientId); },
+        error: () => {},
+      });
+    });
+  }
+
+  /** Loads Google's sign-in script and draws the official button. */
+  private loadGoogle(clientId: string): void {
+    const init = () => {
+      const g = (window as any).google?.accounts?.id;
+      const el = this.slot()?.nativeElement;
+      if (!g || !el) return;
+      g.initialize({ client_id: clientId, callback: (r: { credential: string }) => this.onGoogle(r.credential) });
+      g.renderButton(el, { theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with', width: Math.min(el.parentElement?.clientWidth || 340, 400) });
+      this.googleReady.set(true);
+    };
+    if ((window as any).google?.accounts?.id) return init();
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.async = true;
+    s.onload = init;
+    document.head.appendChild(s);
+  }
+
+  private onGoogle(credential: string): void {
+    this.error.set('');
+    this.loading.set(true);
+    this.auth.googleLogin(credential).subscribe({
+      next: ({ user }) => {
+        this.toast.success(`Welcome, ${user.name.split(' ')[0]}!`);
+        const target = this.returnUrl.startsWith('/') ? this.returnUrl : '/';
+        this.router.navigateByUrl(user.role === 'admin' && target === '/' ? '/admin' : target);
+      },
+      error: (e) => { this.error.set(errorMessage(e)); this.loading.set(false); },
+    });
   }
 
   submit(): void {

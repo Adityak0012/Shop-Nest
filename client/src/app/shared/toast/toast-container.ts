@@ -22,9 +22,9 @@ import { ToastService } from '../../core/services/toast.service';
   styles: `
     .toast-stack { position: fixed; z-index: 1090; right: 1rem; bottom: 1rem; left: 1rem; display: flex; flex-direction: column; gap: .5rem; align-items: flex-end; pointer-events: none; }
     .sn-toast { pointer-events: auto; display: flex; align-items: center; gap: .65rem; max-width: 26rem; width: 100%;
-      color: #fff; background: #0b1530; border-radius: .75rem; padding: .75rem .9rem; box-shadow: 0 10px 30px rgba(0,0,0,.18); font-size: .9rem; }
+      color: #fff; background: #111113; border-radius: .75rem; padding: .75rem .9rem; box-shadow: 0 10px 30px rgba(0,0,0,.18); font-size: .9rem; }
     .sn-toast-success i.bi { color: #5eead4; }
-    .sn-toast-error { background: #7f1d1d; }
+    .sn-toast-error { background: #5a2a22; }
     .sn-toast-info i.bi { color: #93c5fd; }
   `,
 })

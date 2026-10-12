@@ -11,11 +11,13 @@ import { ProductCard } from '../../shared/product-card/product-card';
 import { InrPipe, discountPercent } from '../../shared/inr.pipe';
 import { ProductReviews } from './reviews/product-reviews';
 import { ProductGallery } from './gallery/product-gallery';
+import { PincodeCheck } from '../../shared/pincode-check';
+import { RecentService } from '../../core/services/recent.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [RouterLink, ProductCard, InrPipe, ProductReviews, ProductGallery],
+  imports: [RouterLink, ProductCard, InrPipe, ProductReviews, ProductGallery, PincodeCheck],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
 })
@@ -27,6 +29,7 @@ export class ProductDetail {
   readonly cart = inject(CartService);
   private toast = inject(ToastService);
   readonly wishlist = inject(WishlistService);
+  private recent = inject(RecentService);
 
   readonly product = signal<Product | null>(null);
   readonly related = signal<Product[]>([]);
@@ -55,6 +58,7 @@ export class ProductDetail {
       .subscribe({
         next: ({ product, related }) => {
           this.product.set(product);
+          this.recent.add(product);
           this.related.set(related);
           this.title.setTitle(`${product.name} · ShopNest`);
           this.loading.set(false);

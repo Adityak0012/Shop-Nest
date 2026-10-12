@@ -27,9 +27,9 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
     .admin-nav { display: flex; gap: .25rem; overflow-x: auto; }
     @media (min-width: 992px) { .admin-nav { flex-direction: column; position: sticky; top: 5.5rem; } }
     .admin-nav a { display: flex; align-items: center; gap: .6rem; min-height: 2.75rem; padding: 0 .85rem; border-radius: .6rem;
-      color: #3d4863; font-weight: 600; text-decoration: none; white-space: nowrap; }
-    .admin-nav a:hover { background: #fff; }
-    .admin-nav a.active { background: #fff; color: #0b1530; box-shadow: var(--sn-shadow-sm); border: 1px solid #e1e8f5; }
+      color: #3b3a36; font-weight: 600; text-decoration: none; white-space: nowrap; }
+    .admin-nav a:hover { background: var(--sn-surface); }
+    .admin-nav a.active { background: var(--sn-surface); color: #111113; box-shadow: var(--sn-shadow-sm); border: 1px solid #dcdcd8; }
     .admin-nav .bi { font-size: 1.05rem; }
   `,
 })

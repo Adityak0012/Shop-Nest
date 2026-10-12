@@ -1,25 +1,25 @@
 .placed-banner {
-  display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; border-radius: 1rem;
-  background: #ecfdf5; border: 1px solid #a7f3d0;
+  display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; border-radius: 0.5rem;
+  background: rgba(27, 127, 85,0.12); border: 1px solid rgba(27, 127, 85,0.35);
 }
 .placed-icon {
   width: 3rem; height: 3rem; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0;
-  background: #15803d; color: #fff; font-size: 1.5rem;
+  background: #1b7f55; color: #0f1111; font-size: 1.5rem;
 }
 
 .tracker {
   display: flex; list-style: none; margin: 0;
   li { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; position: relative; text-align: center; }
   li + li::before {
-    content: ''; position: absolute; top: 1.125rem; right: 50%; width: 100%; height: 3px; background: #e1e8f5; z-index: 0;
+    content: ''; position: absolute; top: 1.125rem; right: 50%; width: 100%; height: 3px; background: #dcdcd8; z-index: 0;
   }
-  li.done + li.done::before { background: #0b1530; }
+  li.done + li.done::before { background: #111113; }
   .dot {
     width: 2.25rem; height: 2.25rem; border-radius: 50%; display: grid; place-items: center; position: relative; z-index: 1;
-    background: #f1f5fd; color: #5b6783; border: 2px solid #e1e8f5;
+    background: #e7e7e4; color: #68686b; border: 2px solid #dcdcd8;
   }
-  li.done .dot { background: #0b1530; color: #fff; border-color: #0b1530; }
-  li.current .dot { box-shadow: 0 0 0 5px rgba(11, 21, 48, 0.06); }
-  .label { font-size: 0.85rem; font-weight: 600; color: #5b6783; }
-  li.done .label { color: #0b1530; }
+  li.done .dot { background: #111113; color: #fff; border-color: #111113; }
+  li.current .dot { box-shadow: 0 0 0 5px rgba(0, 0, 0, 0.06); }
+  .label { font-size: 0.85rem; font-weight: 600; color: #68686b; }
+  li.done .label { color: #111113; }
 }

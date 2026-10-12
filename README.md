@@ -2,39 +2,57 @@
 
 ShopNest is an online store built with the **MEAN stack**: **MongoDB, Express.js, Angular and Node.js**.
 Customers can search and filter products, add them to a cart and check out with **Razorpay (test mode)** or **Cash on Delivery**.
-Admins get a dashboard to manage products, stock and orders.
+Admins get a dashboard to manage products, stock, orders and coupons.
 
 Product photos are **AI-generated with Hugging Face** (FLUX.1-schnell) and stored in `client/public/images/products/`. Any product without a photo falls back to a **Bootstrap Icon** on a coloured tile.
+
+## Screenshots
+
+| Home | Shop |
+|---|---|
+| ![Home](docs/screenshots/home.png) | ![Shop](docs/screenshots/shop.png) |
+| **Product** | **Admin dashboard** |
+| ![Product](docs/screenshots/product.png) | ![Admin](docs/screenshots/admin.png) |
+
+<p align="center"><img src="docs/screenshots/mobile.png" alt="Mobile home" width="260"></p>
 
 ## Features
 
 **Customers**
-- Product catalogue with **search**, **category filter**, **price range**, **in-stock filter**, **sorting** (newest, best selling, top rated, price) and **server-side pagination**. All of this runs as MongoDB queries.
-- Filters are kept in the URL, so a filtered page can be shared and the back button works.
-- Product page with discount, stock status, highlights and related products.
-- Cart saved in the browser (localStorage), with quantity limits based on stock and a free-delivery progress message.
-- Checkout with address form validation (10-digit mobile, 6-digit PIN code, Indian states) and a choice of Razorpay or Cash on Delivery.
-- My Orders page with a delivery tracker, plus cancel before shipping (stock goes back).
+- Catalogue of **62 products across 9 categories**, with **live search suggestions**, **category filter**, **price range**, **in-stock filter**, **sorting** and **server-side pagination**. Filters live in the URL, so a filtered page can be shared.
+- Product page with a **photo gallery and full-screen viewer**, discount, stock status, highlights, **customer reviews and ratings**, related products and a **pincode delivery estimate**.
+- **Wishlist**, plus **recently viewed** and **just added** sections on the home page.
+- Cart saved in the browser, with stock-based quantity limits and a free-delivery progress message.
+- **Coupon codes** (percent or flat, minimum order, usage limits, one per customer) re-checked on the server at checkout.
+- Checkout with address validation (10-digit mobile, 6-digit PIN, Indian states) and **Razorpay (test mode)** or **Cash on Delivery**.
+- My Orders with a delivery tracker and cancel-before-shipping (stock and coupon are released).
+- **Sign in with Google**, email and password login, and **forgot / reset password**.
+- Info pages: About, Contact, Shipping & returns, Privacy, Terms, and a custom 404.
 
 **Admin**
-- Dashboard: revenue, orders, customers, out-of-stock count, orders by status, revenue by category, low-stock list with quick stock update, recent orders.
-- Products: search, add, edit and delete. Icon picker and colour picker, MRP vs price check, highlights list.
-- Orders: filter by status and move orders through `placed → shipped → delivered` or cancel them.
+- Dashboard: revenue, orders, customers, low-stock list with quick stock update, orders by status, revenue by category.
+- Products: search, add, edit, delete. Orders: move through `placed → shipped → delivered` or cancel.
+- **Coupons**: create, edit, pause and delete discount codes.
+
+**Design and motion**
+- "Atelier Mono" design system: warm off-white canvas, charcoal ink, a single lilac highlight, Syne for headings and Figtree for text. Sticky header, photo-led product cards and a clean row of category tiles. Fully responsive.
+- Animations built with the [`motion`](https://motion.dev) library (scroll reveals, staggered grids, hero intro, parallax photos) plus View Transitions between pages. All of it respects `prefers-reduced-motion`.
 
 **Security and reliability**
-- **JWT authentication**: passwords hashed with bcrypt, token sent by an Angular **HTTP interceptor**, auto logout on an expired token.
-- **Role-based access**: `customer` and `admin`. Angular **route guards** protect pages, and the API checks the role again on every admin route.
-- Prices are always read from the database at checkout, never trusted from the browser.
-- Stock is reserved with an atomic MongoDB update (`stock >= qty`), so two buyers can't buy the last unit. It is rolled back if any item runs out.
-- Razorpay payments are verified on the server with an HMAC-SHA256 signature check.
-- Input validation with express-validator, security headers with Helmet, and central error handling.
+- **JWT authentication**, bcrypt password hashes, HTTP interceptor, auto logout on expiry. Google ID tokens are verified on the server.
+- **Role-based access** with Angular route guards and a second check on every admin API route.
+- Prices are always read from the database, never trusted from the browser.
+- Stock is reserved with an atomic MongoDB update so two buyers cannot buy the last unit; it rolls back on failure.
+- Razorpay payments verified with an HMAC-SHA256 signature check.
+- Password reset tokens are random, stored hashed, single-use and expire in 30 minutes.
+- Input validation (express-validator), security headers (Helmet), central error handling.
 
 ## Tech stack
 
 | Layer | Tools |
 |---|---|
-| Frontend | Angular 22 (standalone components, signals, reactive forms, lazy-loaded routes), TypeScript, RxJS, Bootstrap 5, Bootstrap Icons |
-| Backend | Node.js, Express 5, Mongoose, JWT, bcryptjs, express-validator, Helmet, Razorpay SDK |
+| Frontend | Angular 22 (standalone components, signals, reactive forms, lazy-loaded routes), TypeScript, RxJS, Bootstrap 5, Bootstrap Icons, Motion |
+| Backend | Node.js, Express 5, Mongoose, JWT, bcryptjs, express-validator, Helmet, Razorpay SDK, google-auth-library |
 | Database | MongoDB (local, Atlas, or an automatic in-memory database for quick demos) |
 
 ## Project structure
@@ -47,15 +65,15 @@ ShopNest/
 │       ├── core/           models, services (auth, cart, shop, razorpay, toast), guards, interceptor
 │       ├── shared/         product card, pagination, toasts, ₹ currency pipe
 │       ├── layout/         navbar, footer
-│       ├── pages/          home, shop, product, cart, checkout, orders, order detail, login, register
-│       └── admin/          dashboard, products, product form, orders
+│       ├── pages/          home, shop, product, cart, checkout, orders, auth, info pages, 404
+│       └── admin/          dashboard, products, product form, orders, coupons
 ├── server/                 Express API
 │   └── src/
 │       ├── config/         environment and MongoDB connection
-│       ├── models/         User, Product, Order
+│       ├── models/         User, Product, Order, Review, Coupon
 │       ├── middleware/     JWT auth, admin check, validation, errors
-│       ├── routes/         auth, products, orders, admin
-│       └── seed/           36 demo products + demo accounts
+│       ├── routes/         auth, products, orders, reviews, wishlist, coupons, admin
+│       └── seed/           62 demo products + demo accounts
 │   └── scripts/            generate-images.js (Hugging Face text-to-image)
 └── package.json            scripts to run both together
 ```
@@ -72,7 +90,10 @@ npm run install-all
 #    Windows:      copy server\.env.example server\.env
 #    macOS/Linux:  cp server/.env.example server/.env
 
-# 3. Start the API and the Angular app together
+# 3. (If the fonts or animations are missing) install the client packages
+#    cd client && npm install && cd ..
+
+# 4. Start the API and the Angular app together
 npm run dev
 ```
 
@@ -90,7 +111,19 @@ Open **http://localhost:4200**.
 | Admin | admin@shopnest.dev | Admin@123 |
 | Customer | demo@shopnest.dev | Demo@123 |
 
-The login page also has buttons that fill these in.
+### Sign in with Google (optional)
+
+1. In [Google Cloud Console](https://console.cloud.google.com) create a project and set up the **Google Auth Platform** consent screen (External). While it is in Testing mode, add your own Gmail under **Audience → Test users**.
+2. Under **Clients → Create client** choose **Web application** and add `http://localhost:4200` under **Authorised JavaScript origins** (and your live site URL when deployed). Leave redirect URIs empty.
+3. Put the Client ID in `server/.env` as `GOOGLE_CLIENT_ID=...` and **restart the server**. No client secret is needed, so never store it in the project.
+
+Without it the login page shows a short "not switched on" note. `Error 401: invalid_client / no registered origin` means the origin in step 2 is missing or does not match the address in your browser.
+
+Without it the login page shows a short "not switched on" note.
+
+### Forgot password
+
+There is no email service connected yet. In development the reset link is printed in the server console and shown on the page. In production, connect an email provider (for example Nodemailer with SMTP, or Resend) inside the `/api/auth/forgot` route.
 
 ### Generate product photos with Hugging Face
 
@@ -123,11 +156,21 @@ npm run build     # builds Angular into client/dist
 npm start         # Express serves the API and the built app on http://localhost:5000
 ```
 
+## Keep your secrets out of Git
+
+`server/.env` holds your JWT secret and API keys, and is already listed in `.gitignore`. Commit only `server/.env.example`, which has empty values. Before the first push, check with `git status` that `.env` is not listed.
+
+## Deploying
+
+The Express server also serves the built Angular app (`npm run build`, then `npm start`), so the whole project can run as one web service. Use a MongoDB Atlas connection string for `MONGO_URI`, set a long random `JWT_SECRET`, set `NODE_ENV=production`, and add your live URL to the Google OAuth origins.
+
 ## API overview
 
 | Method | Endpoint | Access |
 |---|---|---|
-| POST | `/api/auth/register`, `/api/auth/login` | Public |
+| POST | `/api/auth/register`, `/api/auth/login`, `/api/auth/google` | Public |
+| POST | `/api/auth/forgot`, `/api/auth/reset` | Public |
+| GET | `/api/auth/config` | Public |
 | GET | `/api/auth/me` | Logged in |
 | GET | `/api/products?search=&category=&minPrice=&maxPrice=&inStock=&sort=&page=&limit=` | Public |
 | GET | `/api/products/categories`, `/api/products/:slug` | Public |

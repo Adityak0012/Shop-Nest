@@ -86,10 +86,10 @@ const ACTION_LABEL: Partial<Record<OrderStatus, string>> = { shipped: 'Mark ship
   `,
   styles: `
     td, th { white-space: nowrap; }
-    .tab { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #e1e8f5; background: #fff; border-radius: 999px;
-      padding: .45rem .9rem; font-weight: 600; font-size: .85rem; color: #3d4863; white-space: nowrap; min-height: 2.5rem; }
-    .tab:hover { border-color: #0b1530; }
-    .tab.active { background: #0b1530; border-color: #0b1530; color: #fff; }
+    .tab { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #dcdcd8; background: var(--sn-surface); border-radius: 999px;
+      padding: .45rem .9rem; font-weight: 600; font-size: .85rem; color: #3b3a36; white-space: nowrap; min-height: 2.5rem; }
+    .tab:hover { border-color: #111113; }
+    .tab.active { background: #111113; border-color: #111113; color: #fff; }
   `,
 })
 export class AdminOrders {

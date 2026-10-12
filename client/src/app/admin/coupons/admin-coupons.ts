@@ -113,7 +113,7 @@ import { ToastService } from '../../core/services/toast.service';
   `,
   styles: `
     td, th { white-space: nowrap; }
-    .code { font-weight: 700; letter-spacing: .08em; font-size: .8rem; border: 1px dashed #2457f5; color: #2457f5; border-radius: .35rem; padding: .15rem .45rem; }
+    .code { font-weight: 700; letter-spacing: .08em; font-size: .8rem; border: 1px dashed #17171a; color: #17171a; border-radius: .35rem; padding: .15rem .45rem; }
   `,
 })
 export class AdminCoupons {

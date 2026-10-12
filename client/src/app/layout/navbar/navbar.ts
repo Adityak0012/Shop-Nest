@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, filter, of, switchMap, catchError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth.service';
@@ -12,7 +12,7 @@ import { InrPipe } from '../../shared/inr.pipe';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, RouterLinkActive, FormsModule, InrPipe],
+  imports: [RouterLink, FormsModule, InrPipe],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
@@ -29,6 +29,7 @@ export class Navbar {
   readonly menuOpen = signal(false);
   readonly userMenuOpen = signal(false);
   readonly searchOpen = signal(false);
+  readonly mobileSearch = signal(false);
   readonly scrolled = signal(false);
   search = '';
 
@@ -66,6 +67,7 @@ export class Navbar {
         this.menuOpen.set(false);
         this.userMenuOpen.set(false);
         this.searchOpen.set(false);
+        this.mobileSearch.set(false);
         const q = this.router.parseUrl(this.router.url).queryParams['search'];
         this.search = typeof q === 'string' ? q : '';
       });
@@ -74,6 +76,11 @@ export class Navbar {
   toggleSearch(): void {
     this.searchOpen.update((v) => !v);
     if (this.searchOpen()) requestAnimationFrame(() => this.searchInput()?.nativeElement.focus());
+  }
+
+  toggleMobileSearch(): void {
+    this.mobileSearch.update((v) => !v);
+    if (this.mobileSearch()) requestAnimationFrame(() => this.searchInput()?.nativeElement.focus());
   }
 
   onSearchInput(value: string): void {
@@ -123,6 +130,8 @@ export class Navbar {
 
   @HostListener('document:click', ['$event'])
   onDocClick(e: MouseEvent): void {
-    if (!(e.target as HTMLElement).closest('.user-menu')) this.userMenuOpen.set(false);
+    const t = e.target as HTMLElement;
+    if (!t.closest('.user-menu')) this.userMenuOpen.set(false);
+    if (!t.closest('.hdr-search')) this.searchOpen.set(false);
   }
 }

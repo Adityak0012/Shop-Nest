@@ -21,6 +21,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 6, select: false },
     role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
     address: addressSchema,
+    resetTokenHash: { type: String, select: false },
+    resetExpires: { type: Date, select: false },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   },
   { timestamps: true }

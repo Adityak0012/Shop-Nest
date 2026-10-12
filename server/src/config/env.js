@@ -11,6 +11,7 @@ export const env = {
   clientUrl: process.env.CLIENT_URL || 'http://localhost:4200',
   razorpayKeyId: process.env.RAZORPAY_KEY_ID || '',
   razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET || '',
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   adminEmail: process.env.ADMIN_EMAIL || 'admin@shopnest.dev',
   adminPassword: process.env.ADMIN_PASSWORD || 'Admin@123',
 };

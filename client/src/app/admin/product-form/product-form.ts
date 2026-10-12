@@ -13,7 +13,7 @@ const ICON_CHOICES = [
   'bi-cup-hot', 'bi-lamp', 'bi-fan', 'bi-robot', 'bi-house-heart', 'bi-backpack', 'bi-handbag', 'bi-sunglasses', 'bi-umbrella',
   'bi-book', 'bi-journal-code', 'bi-bicycle', 'bi-dribbble', 'bi-trophy', 'bi-gift', 'bi-box-seam',
 ];
-const COLOR_CHOICES = ['#0b1530', '#4F46E5', '#2563EB', '#0891B2', '#059669', '#CA8A04', '#EA580C', '#DC2626', '#DB2777', '#7C3AED', '#334155', '#92400E'];
+const COLOR_CHOICES = ['#111113', '#4F46E5', '#2563EB', '#0891B2', '#059669', '#CA8A04', '#EA580C', '#DC2626', '#DB2777', '#7C3AED', '#334155', '#a86a00'];
 
 /** MRP must be at least the selling price */
 function mrpAtLeastPrice(group: AbstractControl): ValidationErrors | null {
@@ -57,7 +57,7 @@ export class ProductForm {
       mrp: [0, [Validators.required, Validators.min(1)]],
       stock: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
       icon: ['bi-box-seam', [Validators.required, Validators.pattern(/^bi-[a-z0-9-]+$/)]],
-      color: ['#0b1530', [Validators.required, Validators.pattern(/^#[0-9a-fA-F]{6}$/)]],
+      color: ['#111113', [Validators.required, Validators.pattern(/^#[0-9a-fA-F]{6}$/)]],
       image: ['', [Validators.maxLength(300), Validators.pattern(/^(\/|https:\/\/).*/)]],
       featured: [false],
       gallery: ['', Validators.maxLength(2000)],

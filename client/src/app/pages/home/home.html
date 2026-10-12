@@ -1,42 +1,27 @@
-<!-- Hero -->
-<section class="hero">
-  <div class="container">
-   <div class="hero-panel">
-    <div class="row align-items-center gx-4 gx-lg-5 gy-5">
-      <div class="col-lg-6 fade-in">
-        <p class="eyebrow mb-3">The 2026 collection</p>
-        <h1 class="display-hero mb-4">Things worth<br><em>owning.</em></h1>
-        <p class="lead-copy mb-4">
-          Headphones, laptops, wearables and everyday essentials, chosen for how they look, feel and last.
-          Free delivery over {{ freeShippingAbove() | inr }} and Cash on Delivery across India.
-        </p>
-        <div class="d-flex flex-wrap gap-2 mb-5">
-          <a routerLink="/shop" class="btn btn-primary btn-lg px-4">Shop the collection</a>
-          <a routerLink="/shop" [queryParams]="{ sort: 'popular' }" class="btn btn-outline-primary btn-lg px-4">Bestsellers</a>
-        </div>
-        <dl class="trust">
-          <div><dt>4.5<i class="bi bi-star-fill"></i></dt><dd>Average rating</dd></div>
-          <div><dt>36</dt><dd>Curated products</dd></div>
-          <div><dt>COD</dt><dd>Pay on delivery</dd></div>
-        </dl>
-      </div>
-
-      <div class="col-lg-6">
-        <div class="mosaic" aria-hidden="true">
-          <a routerLink="/product/pulse-anc-headphones" class="m-tile m-big" tabindex="-1">
-            <img src="/images/products/pulse-anc-headphones.jpg" alt="" (error)="hideImg($event)">
-            <span class="m-chip"><strong>Pulse ANC Headphones</strong><span>{{ 7999 | inr }}</span></span>
-          </a>
-          <a routerLink="/product/stride-running-sneakers" class="m-tile" tabindex="-1">
-            <img src="/images/products/stride-running-sneakers.jpg" alt="" (error)="hideImg($event)">
-          </a>
-          <a routerLink="/product/classic-steel-watch" class="m-tile" tabindex="-1">
-            <img src="/images/products/classic-steel-watch.jpg" alt="" (error)="hideImg($event)">
-          </a>
-        </div>
+<!-- Hero: headline on the left, three tall photographs on the right -->
+<section class="hero" snReveal="intro" #hero>
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <h1 class="display-hero">
+        <span class="w"><span data-in="word">Made</span></span>
+        <span class="w"><span data-in="word">well.</span></span><br>
+        <span class="w"><span data-in="word">Chosen</span></span><br>
+        <span class="w"><span data-in="word">carefully.</span></span>
+      </h1>
+      <p class="hero-lead" data-in>
+        Over sixty pieces across tech, home and everyday carry, picked for how they feel after the first week.
+        Free delivery over {{ freeShippingAbove() | inr }}, and you can pay on delivery.
+      </p>
+      <div class="hero-cta" data-in>
+        <a routerLink="/shop" class="btn btn-primary btn-lg">Shop the collection</a>
+        <a routerLink="/shop" [queryParams]="{ sort: 'popular' }" class="link-arrow">See what's selling</a>
       </div>
     </div>
-   </div>
+    <div class="hero-photos" aria-hidden="true">
+      <a routerLink="/product/pulse-anc-headphones" class="ph ph-a" tabindex="-1" data-in="clip"><img src="/images/products/pulse-anc-headphones.jpg" alt="" (error)="hideImg($event)"></a>
+      <a routerLink="/product/classic-steel-watch" class="ph ph-b" tabindex="-1" data-in="clip"><img src="/images/products/classic-steel-watch.jpg" alt="" (error)="hideImg($event)"></a>
+      <a routerLink="/product/stride-running-sneakers" class="ph ph-c" tabindex="-1" data-in="clip"><img src="/images/products/stride-running-sneakers.jpg" alt="" (error)="hideImg($event)"></a>
+    </div>
   </div>
 </section>
 
@@ -50,43 +35,37 @@
     </div>
   </section>
 } @else {
-  <!-- Categories -->
-  <section class="container section pb-0" aria-labelledby="cat-title">
+  <!-- Browse: a typographic index. On desktop a photo follows the cursor. -->
+  <section class="container section" aria-labelledby="cat-title">
     <div class="section-head">
-      <div><p class="eyebrow mb-2">Browse</p><h2 id="cat-title">Shop by category</h2></div>
-      <a routerLink="/shop" class="link-arrow">View all</a>
+      <h2 id="cat-title">Shop by category</h2>
+      <a routerLink="/shop" class="link-arrow">All products</a>
     </div>
     @if (loading()) {
-      <div class="cat-skeletons">@for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton" style="aspect-ratio: 3/4"></div> }</div>
+      <div class="d-grid gap-2"><div class="skeleton" style="height: 5rem"></div><div class="skeleton" style="height: 5rem"></div><div class="skeleton" style="height: 5rem"></div></div>
     } @else {
-      <!-- Auto-scrolling rail: the list is rendered twice so the loop is seamless. Hover or focus pauses it. -->
-      <div class="cat-marquee" role="region" aria-label="Product categories">
-        <div class="cat-track" [style.--dur]="categories().length * 4 + 's'">
-          @for (round of [0, 1]; track round) {
-            @for (c of categories(); track c.name) {
-              <a class="cat-card" routerLink="/shop" [queryParams]="{ category: c.name }"
-                 [attr.aria-hidden]="round === 1 ? 'true' : null" [attr.tabindex]="round === 1 ? -1 : null">
-                <span class="cat-media">
-                  <i class="bi" [class]="categoryIcon[c.name] || 'bi-box-seam'" aria-hidden="true"></i>
-                  @if (categoryImage[c.name]) { <img [src]="categoryImage[c.name]" alt="" loading="lazy" (error)="hideImg($event)"> }
-                </span>
-                <span class="cat-name">{{ c.name }}</span>
-                <span class="cat-count">{{ c.count }} products</span>
-              </a>
-            }
-          }
-        </div>
+      <div class="cats" role="list">
+        @for (c of categories(); track c.name) {
+          <a routerLink="/shop" [queryParams]="{ category: c.name }" class="cat" role="listitem">
+            <span class="cat-img icon-tile" [style.--tile]="'#68686b'">
+              <i class="bi" [class]="categoryIcon[c.name] || 'bi-box-seam'" aria-hidden="true"></i>
+              @if (categoryImage[c.name]) { <img [src]="categoryImage[c.name]" alt="" loading="lazy" (error)="hideImg($event)"> }
+            </span>
+            <span class="cat-name">{{ c.name }}</span>
+            <span class="cat-count">{{ c.count }} {{ c.count === 1 ? 'piece' : 'pieces' }}</span>
+          </a>
+        }
       </div>
     }
   </section>
 
-  <!-- Featured -->
-  <section class="container section" aria-labelledby="feat-title">
+  <!-- New in -->
+  <section class="container section pt-0" aria-labelledby="feat-title">
     <div class="section-head">
-      <div><p class="eyebrow mb-2">Editor's picks</p><h2 id="feat-title">Loved for a reason</h2></div>
-      <a routerLink="/shop" [queryParams]="{ sort: 'rating' }" class="link-arrow">Top rated</a>
+      <h2 id="feat-title">Our top-rated picks</h2>
+      <a routerLink="/shop" [queryParams]="{ sort: 'rating' }" class="link-arrow">Shop top rated</a>
     </div>
-    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 gx-3 gx-md-4 gy-5">
+    <div class="row row-cols-2 row-cols-lg-4 gx-3 gx-md-4 gy-5">
       @if (loading()) {
         @for (i of [1,2,3,4,5,6,7,8]; track i) { <div class="col"><div class="skeleton" style="aspect-ratio: 4/5"></div></div> }
       } @else {
@@ -95,58 +74,82 @@
     </div>
   </section>
 
-  <!-- Editorial: sound -->
-  <section class="container" aria-labelledby="sound-title">
-    <div class="editorial">
-      <div class="ed-media">
-        <img src="/images/products/retro-vinyl-turntable.jpg" alt="A turntable playing an orange vinyl record by a window" loading="lazy" (error)="hideImg($event)">
+  <!-- Pine editorial panel -->
+  <section class="pine" aria-labelledby="pine-title">
+    <div class="container pine-grid">
+      <div class="pine-copy">
+        <h2 id="pine-title">Listen better at home. Work longer on the move.</h2>
+        <p>Noise-cancelling headphones and a belt-drive turntable with Bluetooth out. Thin, light laptops from {{ 32990 | inr }}. Compare them side by side, then pay when they arrive.</p>
+        <div class="pine-cta">
+          <a routerLink="/shop" [queryParams]="{ category: 'Audio' }" class="btn btn-warning btn-lg">Shop audio</a>
+          <a routerLink="/shop" [queryParams]="{ category: 'Laptops' }" class="btn btn-outline-light btn-lg">Shop laptops</a>
+        </div>
       </div>
-      <div class="ed-copy">
-        <p class="eyebrow mb-3">The sound edit</p>
-        <h2 id="sound-title" class="mb-3">Analog warmth.<br><em>Wireless freedom.</em></h2>
-        <p class="text-muted mb-4">From noise-cancelling headphones to a belt-drive turntable with Bluetooth out, everything you need to listen better at home and on the move.</p>
-        <a routerLink="/shop" [queryParams]="{ category: 'Audio' }" class="btn btn-primary px-4">Shop audio</a>
+      <div class="pine-photos" snReveal="stagger">
+        <img src="/images/products/retro-vinyl-turntable.jpg" alt="A turntable playing an orange vinyl record by a window" loading="lazy" (error)="hideImg($event)">
+        <img src="/images/products/aerobook-14-thin-light.jpg" alt="A thin silver laptop on a white desk" loading="lazy" (error)="hideImg($event)">
       </div>
     </div>
   </section>
 
-  <!-- Best sellers -->
+  <!-- Bestsellers: a real ranking -->
   <section class="container section" aria-labelledby="best-title">
     <div class="section-head">
-      <div><p class="eyebrow mb-2">Most wanted</p><h2 id="best-title">Bestsellers</h2></div>
-      <a routerLink="/shop" [queryParams]="{ sort: 'popular' }" class="link-arrow">See all</a>
+      <h2 id="best-title">What everyone is buying</h2>
+      <a routerLink="/shop" [queryParams]="{ sort: 'popular' }" class="link-arrow">See all bestsellers</a>
     </div>
-    <div class="row row-cols-2 row-cols-md-4 gx-3 gx-md-4 gy-5">
+    <ol class="ranked">
+      @if (loading()) {
+        @for (i of [1,2,3,4]; track i) { <li><div class="skeleton" style="height: 6rem"></div></li> }
+      } @else {
+        @for (p of bestSellers(); track p._id; let i = $index) {
+          <li>
+            <a [routerLink]="['/product', p.slug]" class="rank-row">
+              <span class="rank-no">{{ i + 1 }}</span>
+              <span class="icon-tile tile-rank" [style.--tile]="p.color">
+                <i class="bi" [class]="p.icon" aria-hidden="true"></i>
+                @if (p.image) { <img [src]="p.image" [alt]="p.name" loading="lazy" (error)="hideImg($event)"> }
+              </span>
+              <span class="rank-info"><span class="rank-brand">{{ p.brand }}</span><span class="rank-name">{{ p.name }}</span></span>
+              <span class="rank-price">{{ p.price | inr }}</span>
+            </a>
+          </li>
+        }
+      }
+    </ol>
+  </section>
+
+  @if (recent().length) {
+    <section class="container section pt-0" aria-labelledby="rec-title">
+      <div class="section-head"><h2 id="rec-title">Pick up where you left off</h2></div>
+      <div class="row row-cols-2 row-cols-lg-4 gx-3 gx-md-4 gy-5">
+        @for (p of recent().slice(0, 4); track p._id) { <div class="col"><app-product-card [product]="p" /></div> }
+      </div>
+    </section>
+  }
+
+  <!-- New arrivals -->
+  <section class="container section pt-0" aria-labelledby="new-title">
+    <div class="section-head">
+      <h2 id="new-title">Just added</h2>
+      <a routerLink="/shop" [queryParams]="{ sort: 'newest' }" class="link-arrow">See what's new</a>
+    </div>
+    <div class="row row-cols-2 row-cols-lg-4 gx-3 gx-md-4 gy-5">
       @if (loading()) {
         @for (i of [1,2,3,4]; track i) { <div class="col"><div class="skeleton" style="aspect-ratio: 4/5"></div></div> }
       } @else {
-        @for (p of bestSellers(); track p._id) { <div class="col"><app-product-card [product]="p" /></div> }
+        @for (p of newest(); track p._id) { <div class="col"><app-product-card [product]="p" /></div> }
       }
     </div>
   </section>
 
-  <!-- Editorial: campus -->
-  <section class="container" aria-labelledby="campus-title">
-    <div class="editorial reverse dark">
-      <div class="ed-media">
-        <img src="/images/products/aerobook-14-thin-light.jpg" alt="A thin silver laptop on a white desk" loading="lazy" (error)="hideImg($event)">
-      </div>
-      <div class="ed-copy">
-        <p class="eyebrow mb-3">Built for campus</p>
-        <h2 id="campus-title" class="mb-3">Laptops that keep up<br><em>from {{ 32990 | inr }}</em></h2>
-        <p class="mb-4 ed-muted">Thin and light, gaming, or everyday. Compare specs and prices side by side, then pay on delivery.</p>
-        <a routerLink="/shop" [queryParams]="{ category: 'Laptops' }" class="btn btn-light px-4">Browse laptops</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Perks -->
-  <section class="container section pb-0">
-    <div class="perks">
-      <div class="perk"><i class="bi bi-truck"></i><strong>Free delivery</strong><span>On orders over {{ freeShippingAbove() | inr }}</span></div>
-      <div class="perk"><i class="bi bi-cash-coin"></i><strong>Cash on Delivery</strong><span>Pay when it arrives</span></div>
-      <div class="perk"><i class="bi bi-shield-check"></i><strong>Secure payments</strong><span>UPI and cards via Razorpay</span></div>
-      <div class="perk"><i class="bi bi-arrow-repeat"></i><strong>Easy cancellation</strong><span>Any time before dispatch</span></div>
+  <!-- Promises -->
+  <section class="container section pt-0" aria-label="Our promises">
+    <div class="perks" snReveal="stagger">
+      <div class="perk"><span class="perk-ic"><i class="bi bi-truck"></i></span><div><strong>Free delivery</strong><span>On orders over {{ freeShippingAbove() | inr }}</span></div></div>
+      <div class="perk"><span class="perk-ic"><i class="bi bi-cash-coin"></i></span><div><strong>Pay on delivery</strong><span>Cash or UPI at your door</span></div></div>
+      <div class="perk"><span class="perk-ic"><i class="bi bi-shield-check"></i></span><div><strong>Secure payments</strong><span>UPI and cards through Razorpay</span></div></div>
+      <div class="perk"><span class="perk-ic"><i class="bi bi-arrow-repeat"></i></span><div><strong>Cancel any time</strong><span>Until your order ships</span></div></div>
     </div>
   </section>
 }

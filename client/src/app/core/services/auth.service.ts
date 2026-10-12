@@ -27,6 +27,22 @@ export class AuthService {
     return this.http.post<AuthResponse>('/api/auth/login', { email, password }).pipe(tap((r) => this.setSession(r)));
   }
 
+  googleLogin(credential: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/google', { credential }).pipe(tap((r) => this.setSession(r)));
+  }
+
+  googleConfig(): Observable<{ googleClientId: string | null }> {
+    return this.http.get<{ googleClientId: string | null }>('/api/auth/config');
+  }
+
+  forgotPassword(email: string): Observable<{ message: string; devResetLink?: string }> {
+    return this.http.post<{ message: string; devResetLink?: string }>('/api/auth/forgot', { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/reset', { token, password }).pipe(tap((r) => this.setSession(r)));
+  }
+
   register(name: string, email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>('/api/auth/register', { name, email, password }).pipe(tap((r) => this.setSession(r)));
   }

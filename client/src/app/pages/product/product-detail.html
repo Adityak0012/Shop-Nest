@@ -72,7 +72,7 @@
                 <i class="bi" [class]="wishlist.has(p._id) ? 'bi-heart-fill' : 'bi-heart'"></i>
               </button>
             </div>
-            <button type="button" class="btn btn-outline-primary btn-lg w-100" (click)="addToCart(true)">Buy now</button>
+            <button type="button" class="btn btn-warning btn-lg w-100" (click)="addToCart(true)">Buy now</button>
             @if (inCart()) { <p class="small text-muted mt-2 mb-0"><i class="bi bi-bag-check me-1"></i>{{ inCart() }} already in your bag · <a routerLink="/cart">View bag</a></p> }
           } @else {
             <div class="d-flex gap-2">
@@ -83,7 +83,9 @@
             </div>
           }
 
-          <div class="assure mt-4">
+          <div class="mt-4"><app-pincode-check /></div>
+
+          <div class="assure mt-3">
             <div><i class="bi bi-truck"></i><span>Free delivery over ₹999</span></div>
             <div><i class="bi bi-cash-coin"></i><span>Cash on Delivery</span></div>
             <div><i class="bi bi-arrow-repeat"></i><span>Cancel before dispatch</span></div>

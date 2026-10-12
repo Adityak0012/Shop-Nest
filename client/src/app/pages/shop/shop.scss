@@ -1,20 +1,30 @@
-.filters { position: sticky; top: 6rem; padding-right: 0.5rem; }
+.filters { padding-right: 0.5rem; }
+// On desktop the filter column sticks under the header and scrolls on its own if it is taller than the screen,
+// so the lower filters (price, rating) can always be reached.
+@media (min-width: 992px) {
+  .filters {
+    position: sticky; top: 5.75rem; max-height: calc(100vh - 6.5rem); overflow-y: auto; overscroll-behavior: contain;
+    padding-bottom: 1rem; scrollbar-width: thin; scrollbar-color: #adada8 transparent;
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-thumb { background: #adada8; border-radius: 999px; }
+  }
+}
 .shop-title { font-size: clamp(2.2rem, 4vw, 3.25rem); font-weight: 400; letter-spacing: -0.03em; }
 
 .filter-option {
   display: flex; align-items: center; gap: 0.6rem; width: 100%; min-height: 2.5rem; padding: 0.4rem 0.6rem;
-  border: 0; border-radius: 0.6rem; background: transparent; color: #0b1530; text-align: left; font-size: 0.9rem;
-  .bi { color: #5b6783; }
-  &:hover { background: #f1f5fd; }
-  &.active { background: rgba(11, 21, 48, 0.06); color: #0b1530; font-weight: 600; .bi { color: #0b1530; } }
+  border: 0; border-radius: 0.6rem; background: transparent; color: #111113; text-align: left; font-size: 0.9rem;
+  .bi { color: #68686b; }
+  &:hover { background: #e7e7e4; }
+  &.active { background: rgba(0, 0, 0, 0.06); color: #111113; font-weight: 600; .bi { color: #111113; } }
 }
 
 .chip {
-  display: inline-flex; align-items: center; gap: 0.25rem; border: 1px solid #e1e8f5; background: #fff; border-radius: 999px;
-  padding: 0.3rem 0.7rem; font-size: 0.8rem; font-weight: 500; color: #0b1530; min-height: 2rem;
-  &:hover { border-color: #0b1530; color: #0b1530; }
+  display: inline-flex; align-items: center; gap: 0.25rem; border: 1px solid #dcdcd8; background: var(--sn-surface); border-radius: 999px;
+  padding: 0.3rem 0.7rem; font-size: 0.8rem; font-weight: 500; color: #111113; min-height: 2rem;
+  &:hover { border-color: #111113; color: #111113; }
 }
-.chip-active { background: #0b1530; border-color: #0b1530; color: #fff; font-weight: 600; &:hover { color: #fff; } }
+.chip-active { background: #111113; border-color: #111113; color: #fff; font-weight: 600; &:hover { color: #fff; } }
 
 .results { transition: opacity 0.2s; }
 .results.is-loading { opacity: 0.5; pointer-events: none; }

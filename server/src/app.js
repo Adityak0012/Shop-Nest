@@ -20,7 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export function createApp() {
   const app = express();
 
-  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(helmet({ contentSecurityPolicy: false, crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' } }));
   app.use(cors({ origin: env.clientUrl }));
   app.use(express.json({ limit: '100kb' }));
   if (!isProd) app.use(morgan('dev'));

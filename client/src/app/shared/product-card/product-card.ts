@@ -2,6 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Product } from '../../core/models';
 import { CartService } from '../../core/services/cart.service';
+import { ShopService } from '../../core/services/shop.service';
 import { ToastService } from '../../core/services/toast.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { InrPipe, discountPercent } from '../inr.pipe';
@@ -9,6 +10,11 @@ import { InrPipe, discountPercent } from '../inr.pipe';
 @Component({
   selector: 'app-product-card',
   imports: [RouterLink, InrPipe],
+  styles: `
+    .meta { display: flex; align-items: baseline; gap: 0.55rem; }
+    .rate { font-size: 0.78rem; color: #3b3a36; .bi { color: #f2a20c; font-size: 0.7rem; margin-right: 0.25rem; } }
+    .low { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #a86a00; margin: 0.35rem 0 0; }
+  `,
   template: `
     @let p = product();
     <article class="product-card position-relative">
@@ -19,9 +25,7 @@ import { InrPipe, discountPercent } from '../inr.pipe';
         </div>
         <div class="position-absolute top-0 start-0 m-2 d-flex flex-column align-items-start gap-1 z-2">
           @if (p.stock === 0) { <span class="tag">Sold out</span> }
-          @else if (discount() >= 30) { <span class="tag tag-ink">−{{ discount() }}%</span> }
-          @else if (discount() > 0) { <span class="tag tag-deal">−{{ discount() }}%</span> }
-          @if (p.featured && p.stock > 0) { <span class="tag">Bestseller</span> }
+          @else if (discount() > 0) { <span class="tag tag-ink">−{{ discount() }}%</span> }
         </div>
         <button type="button" class="heart-btn" [class.on]="saved()" (click)="wishlist.toggle(p)"
                 [attr.aria-pressed]="saved()" [attr.aria-label]="(saved() ? 'Remove ' : 'Save ') + p.name + (saved() ? ' from wishlist' : ' to wishlist')">
@@ -29,36 +33,37 @@ import { InrPipe, discountPercent } from '../inr.pipe';
         </button>
         @if (p.stock > 0) {
           <div class="quick-add">
-            <button type="button" class="btn w-100 btn-sm py-2"
-                    [class]="inCart() ? 'btn-light' : 'btn-primary'"
-                    [disabled]="inCart() >= maxQty()" (click)="add()"
-                    [attr.aria-label]="'Add ' + p.name + ' to bag'">
-              @if (inCart()) { <i class="bi bi-check2 me-1"></i>{{ inCart() }} in bag } @else { <i class="bi bi-bag-plus me-1"></i>Add to bag }
+            <button type="button" class="btn w-100 py-2" [class]="inCart() ? 'btn-outline-primary' : 'btn-primary'"
+                    [disabled]="inCart() >= maxQty()" (click)="add()" [attr.aria-label]="'Add ' + p.name + ' to bag'">
+              @if (inCart()) { <i class="bi bi-check2 me-1"></i>{{ inCart() }} in bag } @else { Add to bag }
             </button>
           </div>
         }
       </div>
       <p class="brand">{{ p.brand }}</p>
       <h3 class="title"><a [routerLink]="['/product', p.slug]" class="stretched-link text-reset">{{ p.name }}</a></h3>
-      <div class="d-flex align-items-center gap-2 mb-1">
+      <div class="meta">
         <span class="price">{{ p.price | inr }}</span>
         @if (p.mrp > p.price) { <span class="mrp">{{ p.mrp | inr }}</span> }
+        <span class="rate ms-auto"><i class="bi bi-star-fill" aria-hidden="true"></i>{{ p.rating.toFixed(1) }}<span class="visually-hidden"> out of 5, {{ p.numReviews }} reviews</span></span>
       </div>
-      <div class="d-flex align-items-center gap-2 small">
-        <span class="rating-pill"><i class="bi bi-star-fill" aria-hidden="true"></i>{{ p.rating.toFixed(1) }}</span>
-        <span class="text-muted">({{ p.numReviews.toLocaleString('en-IN') }})</span>
-        @if (p.stock > 0 && p.stock <= 5) { <span class="ms-auto small fw-semibold" style="color:#8a4b08">Only {{ p.stock }} left</span> }
-      </div>
+      @if (p.stock > 0 && p.stock <= 5) { <p class="low">Only {{ p.stock }} left</p> }
     </article>
   `,
 })
 export class ProductCard {
   private cart = inject(CartService);
   private toast = inject(ToastService);
+  private shop = inject(ShopService);
+  readonly freeAbove = () => this.shop.paymentConfig().freeShippingAbove;
   readonly wishlist = inject(WishlistService);
 
   readonly product = input.required<Product>();
   readonly discount = computed(() => discountPercent(this.product().price, this.product().mrp));
+  readonly stars = computed(() => {
+    const r = this.product().rating;
+    return [1, 2, 3, 4, 5].map((n) => (r >= n ? 'bi-star-fill' : r >= n - 0.5 ? 'bi-star-half' : 'bi-star'));
+  });
   readonly inCart = computed(() => this.cart.qtyOf(this.product()._id));
   readonly maxQty = computed(() => this.cart.maxQty(this.product()));
   readonly saved = computed(() => this.wishlist.has(this.product()._id));

@@ -28,7 +28,7 @@ import { OrderSummary } from './order-summary';
                 <span>Add <strong>{{ cart.amountToFreeShipping() | inr }}</strong> more to get <strong>free delivery</strong>.</span>
               </div>
             } @else {
-              <div class="alert border-0 d-flex align-items-center gap-2 mb-3" style="background:#ecfdf5;color:#166534">
+              <div class="alert border-0 d-flex align-items-center gap-2 mb-3" style="background:rgba(27, 127, 85,0.12);color:#1b7f55">
                 <i class="bi bi-check-circle-fill"></i><span>Your order qualifies for <strong>free delivery</strong>.</span>
               </div>
             }

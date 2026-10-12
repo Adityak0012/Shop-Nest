@@ -82,7 +82,7 @@ export class OrderDetail {
         name: 'ShopNest',
         description: `Order #${o._id.slice(-6).toUpperCase()}`,
         prefill: { name: o.shippingAddress.fullName, email: this.auth.user()?.email, contact: o.shippingAddress.phone },
-        theme: { color: '#0b1530' },
+        theme: { color: '#111113' },
       });
       this.shop.verifyPayment(o._id, { ...res }).subscribe({
         next: ({ order }) => { this.order.set({ ...o, ...order, user: o.user }); this.toast.success('Payment received. Thank you!'); this.busy.set(false); },

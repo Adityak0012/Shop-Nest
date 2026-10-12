@@ -102,7 +102,7 @@ export class Checkout {
               name: 'ShopNest',
               description: `Order #${order._id.slice(-6).toUpperCase()}`,
               prefill: { name: address.fullName, email: this.auth.user()?.email, contact: address.phone },
-              theme: { color: '#0b1530' },
+              theme: { color: '#111113' },
             });
             this.shop.verifyPayment(order._id, { ...res }).subscribe({
               next: () => this.router.navigate(['/orders', order._id], { queryParams: { placed: 1 } }),

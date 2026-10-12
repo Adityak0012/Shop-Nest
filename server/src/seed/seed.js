@@ -54,7 +54,7 @@ export async function seedDatabase() {
   const products = await Product.insertMany(
     demoProducts.map((p, i) => {
       const slug = slugify(p.name);
-      return { ...p, slug, image: findImage(slug), createdAt: new Date(now - i * 3600_000) };
+      return { ...p, slug, image: findImage(slug), createdAt: new Date(now - (demoProducts.length - 1 - i) * 3600_000) };
     })
   );
 
