@@ -52,7 +52,7 @@ npm run install-all
 npm run dev
 ```
 
-Open **http://localhost:4200**.
+Then open `localhost:4200` in your browser.
 
 If `MONGO_URI` in `server/.env` is empty, a temporary in-memory database is used and it resets on every restart.
 To keep your data, install MongoDB and set `MONGO_URI=mongodb://127.0.0.1:27017/shopnest`, then run `npm run seed` once to load the demo products.
