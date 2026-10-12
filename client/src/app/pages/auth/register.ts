@@ -4,22 +4,21 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { errorMessage } from '../../core/models';
+import { AuthShell } from './auth-shell';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AuthShell],
   template: `
-    <div class="container py-5">
-      <div class="auth-card surface p-4 p-md-5 mx-auto fade-in">
-        <div class="text-center mb-4">
-          <span class="auth-icon"><i class="bi bi-person-plus"></i></span>
-          <h1 class="h3 mb-1">Create your account</h1>
-          <p class="text-muted mb-0">It takes less than a minute.</p>
+    <app-auth-shell [words]="['Made', 'well.', 'Chosen', 'carefully.']" lead="Create an account to save your bag, wishlist and delivery details.">
+        <div class="auth-head" data-in>
+          <h1>Create your account</h1>
+          <p>It takes less than a minute.</p>
         </div>
 
         @if (error()) { <div class="alert alert-danger small py-2" role="alert"><i class="bi bi-exclamation-circle me-1"></i>{{ error() }}</div> }
 
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="d-grid gap-3">
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="d-grid gap-3 auth-form" data-in>
           <div>
             <label for="name" class="form-label">Full name</label>
             <input id="name" class="form-control" formControlName="name" autocomplete="name"
@@ -39,13 +38,12 @@ import { errorMessage } from '../../core/models';
             <div id="pw-help" class="form-text">At least 6 characters.</div>
             <div class="invalid-feedback">Password must be at least 6 characters.</div>
           </div>
-          <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading()">
-            @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span>Creating account… } @else { Create account }
+          <button type="submit" class="btn btn-primary btn-lg auth-btn" [disabled]="loading()">
+            @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span>Creating account… } @else { Create account <i class="bi bi-arrow-right"></i> }
           </button>
         </form>
-        <p class="text-center mt-4 mb-0">Already have an account? <a [routerLink]="['/login']" [queryParams]="{ returnUrl }" class="fw-semibold">Log in</a></p>
-      </div>
-    </div>
+        <p class="auth-foot" data-in>Already have an account? <a [routerLink]="['/login']" [queryParams]="{ returnUrl }" class="fw-semibold">Log in</a></p>
+    </app-auth-shell>
   `,
   styleUrl: './auth.scss',
 })

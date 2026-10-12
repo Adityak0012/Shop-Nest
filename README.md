@@ -11,12 +11,9 @@ Shoppers can browse 62 products, search and filter, add to a bag, apply coupons 
 |---|---|
 | **Categories**<br><img src="docs/screenshots/categories.png" alt="Category row"> | **Shop**: search, filters, sorting<br><img src="docs/screenshots/shop.png" alt="Shop page"> |
 | **Product page**<br><img src="docs/screenshots/product.png" alt="Product page"> | **Bag**<br><img src="docs/screenshots/cart.png" alt="Bag page"> |
-| **Login** (email or Google)<br><img src="docs/screenshots/login.png" alt="Login page"> | **Admin dashboard**<br><img src="docs/screenshots/admin.png" alt="Admin dashboard"> |
-| **Admin: products**<br><img src="docs/screenshots/admin-products.png" alt="Admin products"> | **Admin: coupons**<br><img src="docs/screenshots/admin-coupons.png" alt="Admin coupons"> |
-
-**Mobile**
-
-<p><img src="docs/screenshots/mobile.png" alt="Mobile home" width="240"> &nbsp; <img src="docs/screenshots/mobile-shop.png" alt="Mobile shop" width="240"></p>
+| **Log in** (email or Google)<br><img src="docs/screenshots/login-page.png" alt="Login page"> | **Create account**<br><img src="docs/screenshots/register-page.png" alt="Register page"> |
+| **Admin dashboard**<br><img src="docs/screenshots/admin.png" alt="Admin dashboard"> | **Admin: products**<br><img src="docs/screenshots/admin-products.png" alt="Admin products"> |
+| **Admin: coupons**<br><img src="docs/screenshots/admin-coupons.png" alt="Admin coupons"> | **Mobile**<br><img src="docs/screenshots/mobile.png" alt="Mobile home" width="45%"> <img src="docs/screenshots/mobile-shop.png" alt="Mobile shop" width="45%"> |
 
 ## Features
 

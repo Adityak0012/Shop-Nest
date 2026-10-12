@@ -10,3 +10,21 @@
 .or-divider { display: flex; align-items: center; gap: 0.8rem; margin-top: 1.25rem; color: #68686b; font-size: 0.8rem; &::before, &::after { content: ''; flex: 1; border-top: 1px solid #dcdcd8; } }
 
 .demo-note { background: #ecece9; border-radius: 0.45rem; padding: 0.8rem 1rem; color: #3b3a36; }
+
+// ----- Login / register inside the split-screen shell -----
+.auth-head { margin-bottom: 1.75rem;
+  h1 { font-family: 'Syne Variable', sans-serif; font-size: clamp(1.9rem, 3vw, 2.4rem); font-weight: 700; letter-spacing: -0.04em; margin: 0 0 0.4rem; }
+  p { color: #68686b; margin: 0; }
+}
+.auth-form {
+  .form-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; }
+  .form-control { padding: 0.8rem 0.95rem; background: #fff; transition: border-color 0.25s, box-shadow 0.25s; }
+  .form-control:focus { border-color: #111113; box-shadow: 0 0 0 3px rgba(205, 189, 255, 0.55); }
+}
+.auth-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 0.4rem;
+  i { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  &:hover:not(:disabled) i { transform: translateX(5px); }
+}
+.auth-foot { margin: 1.75rem 0 0; color: #68686b; a { color: #111113; text-decoration: underline; text-underline-offset: 0.2em; } }
+@media (prefers-reduced-motion: reduce) { .auth-btn i, .auth-form .form-control { transition: none; } }

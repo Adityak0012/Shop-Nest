@@ -4,23 +4,22 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { errorMessage } from '../../core/models';
+import { AuthShell } from './auth-shell';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AuthShell],
   template: `
-    <div class="container py-5">
-      <div class="auth-card surface p-4 p-md-5 mx-auto fade-in">
-        <div class="text-center mb-4">
-          <span class="auth-icon"><i class="bi bi-person"></i></span>
-          <h1 class="h3 mb-1">Welcome back</h1>
-          <p class="text-muted mb-0">Log in to check out and track your orders.</p>
+    <app-auth-shell [words]="['Good', 'to', 'see', 'you', 'again.']" lead="Log in to check out faster, track your orders and keep your wishlist.">
+        <div class="auth-head" data-in>
+          <h1>Welcome back</h1>
+          <p>Log in to check out and track your orders.</p>
         </div>
 
         @if (expired) { <div class="alert alert-warning small py-2">Your session expired. Please log in again.</div> }
         @if (error()) { <div class="alert alert-danger small py-2" role="alert"><i class="bi bi-exclamation-circle me-1"></i>{{ error() }}</div> }
 
-        <div class="google-wrap">
+        <div class="google-wrap" data-in>
           <div #gbtn class="g-slot" [class.d-none]="!googleReady()"></div>
           @if (!googleReady()) {
             <button type="button" class="btn btn-light btn-lg w-100 g-fallback" (click)="googleHelp.set(!googleHelp())">
@@ -34,7 +33,7 @@ import { errorMessage } from '../../core/models';
           <div class="or-divider"><span>or log in with email</span></div>
         </div>
 
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="d-grid gap-3">
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="d-grid gap-3 auth-form" data-in>
           <div>
             <label for="email" class="form-label">Email</label>
             <input id="email" type="email" class="form-control" formControlName="email" autocomplete="email"
@@ -55,14 +54,13 @@ import { errorMessage } from '../../core/models';
               <div class="invalid-feedback">Enter your password.</div>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading()">
-            @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span>Logging in… } @else { Log in }
+          <button type="submit" class="btn btn-primary btn-lg auth-btn" [disabled]="loading()">
+            @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span>Logging in… } @else { Log in <i class="bi bi-arrow-right"></i> }
           </button>
         </form>
 
-        <p class="text-center mt-4 mb-0">New to ShopNest? <a [routerLink]="['/register']" [queryParams]="{ returnUrl }" class="fw-semibold">Create an account</a></p>
-      </div>
-    </div>
+        <p class="auth-foot" data-in>New to ShopNest? <a [routerLink]="['/register']" [queryParams]="{ returnUrl }" class="fw-semibold">Create an account</a></p>
+    </app-auth-shell>
   `,
   styleUrl: './auth.scss',
 })
