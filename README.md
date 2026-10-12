@@ -3,7 +3,7 @@
 A full-stack online store built with the **MEAN stack** (MongoDB, Express, Angular, Node.js).
 Shoppers can browse 62 products, search and filter, add to a bag, apply coupons and pay with **Razorpay (test mode)** or **Cash on Delivery**. An admin dashboard manages products, orders and coupons.
 
-<img src="docs/screenshots/home.png" alt="Home page" width="100%">
+<img src="docs/screenshots/home-hero.png" alt="Home page" width="100%">
 
 ## Screenshots
 
